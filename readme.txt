@@ -1,0 +1,77 @@
+=== Website Toolbox Forums ===
+Contributors: Website Toolbox Inc.
+Tags: forum, message board, discussion board, discussion forum, bulletin board, community
+Requires at least: 3.0.0
+Tested up to: 3.4.2
+Stable Tag: 1.0.0
+
+Website Toolbox is the easiest way to create a powerful forum. This plugin embeds your Website Toolbox Forum and integrates single sign on.
+
+== Description ==
+
+Not a Website Toolbox Forum owner? <a href="http://www.websitetoolbox.com/forum-hosting/index.html">Create a Forum Now!</a>
+
+Website Toolbox allows you to easily add a Forum to your website without any coding or software headaches! The Website Toolbox WordPress plugin is the easiest way to integrate a Website Toolbox forum into your WordPress site.
+
+ = The plugin has the following features: = 
+
+- Login Integration: Automatically logs the user into your forum when they login to your WordPress website.
+
+- Registration Integration: Automatically creates a forum user account when a user registers on your WordPress website.
+
+- Embedded forum: The forum is automatically embedded into the layout of your WordPress website.
+
+
+= Key forum benefits: = 
+
+- Instant Setup
+
+- Fully Customizable
+
+- Public or Private
+
+- Fanatic Support
+
+- SEO Friendly
+
+- Moderation
+
+- White Label
+
+
+ = Key forum features: = 
+
+- Facebook Integration
+
+- Facebook-style chat bar
+
+- Share files and photos
+
+- Announce and organize events
+
+- Get feedback from users
+
+- Set user permissions
+
+<br><a href="http://www.websitetoolbox.com/forum-hosting/index.html">Learn More</a>
+
+== Installation ==
+
+### WordPress Admin Panel
+
+1. Download the WebsiteToolbox_WordPress.zip file.
+2. Go to your WordPress Admin panel and login with your credentials.
+3. Go to "Plugins" -> "Add New" from the left menu in the WordPress Admin Panel.
+4. Click on the upload link, select the WebsiteToolbox_WordPress.zip file, and click on the "Install Now" button.
+5. Activate the plugin.
+6. Click on the Settings link under the Website Toolbox Forum plugin.
+7. Here, you may easily update your settings according to your Website Toolbox account information.
+
+Please contact Customer Support if you face any difficulties: http://www.websitetoolbox.com/cgi/tools/hr.cgi?action=contact
+
+### Manual Installation
+1. Upload `WebsiteToolbox_WordPress.zip` to the `/wp-content/plugins/` directory
+2. Unzip the compressed plugin.
+3. Activate the plugin through the 'Plugins' menu in WordPress
+4. You will now find a "Forum" tab on your website and a "Website Toolbox Forum" tab under "Settings" menu of your WordPress admin page.
+5. Here, you may easily update your settings according to your Website Toolbox account information.
