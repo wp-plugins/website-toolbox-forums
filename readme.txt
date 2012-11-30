@@ -15,45 +15,34 @@ Website Toolbox allows you to easily add a Forum to your website without any cod
 
  = The plugin has the following features: = 
 
-- Login Integration: Automatically logs the user into your forum when they login to your WordPress website.
+* Login Integration: Automatically logs the user into your forum when they login to your WordPress website.
 
-- Registration Integration: Automatically creates a forum user account when a user registers on your WordPress website.
+* Registration Integration: Automatically creates a forum user account when a user registers on your WordPress website.
 
-- Embedded forum: The forum is automatically embedded into the layout of your WordPress website.
+* Embedded forum: The forum is automatically embedded into the layout of your WordPress website.
 
 
 = Key forum benefits: = 
 
-- Instant Setup
-
-- Fully Customizable
-
-- Public or Private
-
-- Fanatic Support
-
-- SEO Friendly
-
-- Moderation
-
-- White Label
+* Instant Setup
+* Fully Customizable
+* Public or Private
+* Fanatic Support
+* SEO Friendly
+* Moderation
+* White Label
 
 
  = Key forum features: = 
 
-- Facebook Integration
+* Facebook Integration
+* Facebook-style chat bar
+* Share files and photos
+* Announce and organize events
+* Get feedback from users
+* Set user permissions
 
-- Facebook-style chat bar
-
-- Share files and photos
-
-- Announce and organize events
-
-- Get feedback from users
-
-- Set user permissions
-
-<br><a href="http://www.websitetoolbox.com/forum-hosting/index.html">Learn More</a>
+<a href="http://www.websitetoolbox.com/forum-hosting/index.html">Learn More</a>
 
 == Installation ==
 
