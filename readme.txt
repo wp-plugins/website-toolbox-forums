@@ -1,6 +1,6 @@
 === Website Toolbox Forums ===
 Contributors: Website Toolbox Inc.
-Tags: forum, message board, discussion board, discussion forum, bulletin board, community
+Tags: forum, message board, discussion board, discussion forum, bulletin board, community, saas forum, cloud forum, website forum
 Requires at least: 3.0.0
 Tested up to: 3.4.2
 Stable Tag: 1.0.0
@@ -42,25 +42,28 @@ Website Toolbox allows you to easily add a Forum to your website without any cod
 * Get feedback from users
 * Set user permissions
 
+Ranked #1 forum provider by StarReviews!
+
 <a href="http://www.websitetoolbox.com/forum-hosting/index.html">Learn More</a>
 
 == Installation ==
 
 ### WordPress Admin Panel
 
-1. Download the WebsiteToolbox_WordPress.zip file.
-2. Go to your WordPress Admin panel and login with your credentials.
-3. Go to "Plugins" -> "Add New" from the left menu in the WordPress Admin Panel.
-4. Click on the upload link, select the WebsiteToolbox_WordPress.zip file, and click on the "Install Now" button.
-5. Activate the plugin.
+1. Download the ZIP file.
+2. Go to "Plugins" -> "Add New" from the left menu in the WordPress Admin Panel.
+3. Click on the upload link, select the ZIP file, and click on the "Install Now" button.
+4. Activate the plugin.
+5. <a href="http://www.websitetoolbox.com/forum-hosting/index.html">Create a Website Toolbox Forum</a> if you don't already have one.
 6. Click on the Settings link under the Website Toolbox Forum plugin.
 7. Here, you may easily update your settings according to your Website Toolbox account information.
 
 Please contact Customer Support if you face any difficulties: http://www.websitetoolbox.com/cgi/tools/hr.cgi?action=contact
 
 ### Manual Installation
-1. Upload `WebsiteToolbox_WordPress.zip` to the `/wp-content/plugins/` directory
+1. Upload the ZIP file to the `/wp-content/plugins/` directory
 2. Unzip the compressed plugin.
 3. Activate the plugin through the 'Plugins' menu in WordPress
 4. You will now find a "Forum" tab on your website and a "Website Toolbox Forum" tab under "Settings" menu of your WordPress admin page.
 5. Here, you may easily update your settings according to your Website Toolbox account information.
+
