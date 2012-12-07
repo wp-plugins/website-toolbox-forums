@@ -67,3 +67,8 @@ Please contact Customer Support if you face any difficulties: http://www.website
 4. You will now find a "Forum" tab on your website and a "Website Toolbox Forum" tab under "Settings" menu of your WordPress admin page.
 5. Here, you may easily update your settings according to your Website Toolbox account information.
 
+== Frequently Asked Questions ==
+
+= I don't allow registration on my WordPress site, can I still use the forum? =
+
+Yes. If you don't have registration enabled on your WordPress site, your users can register an account directly on the forum. If you want users to be able to post without registering, you can simply enable guest posting or you can disable the User Accounts feature entirely so users don't even see the registration option.
