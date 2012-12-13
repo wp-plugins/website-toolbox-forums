@@ -29,7 +29,7 @@ function doHTTPCall($URL,$HOST) {
 	if(_checkBasicFunctions("curl_init,curl_setopt,curl_exec,curl_close")) {
 		$ch = curl_init("http://".$HOST.$URL);
 		curl_setopt($ch, CURLOPT_HEADER, 0);
-		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		$response = curl_exec($ch); 
 		curl_close($ch);
