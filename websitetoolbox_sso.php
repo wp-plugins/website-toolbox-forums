@@ -27,12 +27,12 @@ function _checkSuccess($response) {
 #Create a request using curl or file and getting response from the Website Toolbox.
 function doHTTPCall($URL,$HOST) {
 	if(_checkBasicFunctions("curl_init,curl_setopt,curl_exec,curl_close")) {
-		$ch = curl_init("http://".$HOST.$URL);
-		curl_setopt($ch, CURLOPT_HEADER, 0);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		$response = curl_exec($ch); 
-		curl_close($ch);
+		$ch = @curl_init("http://".$HOST.$URL);
+		@curl_setopt($ch, CURLOPT_HEADER, 0);
+		@curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$response = @curl_exec($ch); 
+		@curl_close($ch);
 	} else if(_checkBasicFunctions("fsockopen,fputs,feof,fread,fgets,fclose")) {
 		$fsock = fsockopen($HOST, 80, $errno, $errstr, 30);
 		if (!$fsock) {
