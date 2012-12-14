@@ -13,6 +13,8 @@ Not a Website Toolbox Forum owner? <a href="http://www.websitetoolbox.com/forum-
 
 Website Toolbox allows you to easily add a Forum to your website without any coding or software headaches! The Website Toolbox WordPress plugin is the easiest way to integrate a Website Toolbox forum into your WordPress site.
 
+Ranked #1 forum provider by StarReviews!
+
  = The plugin has the following features: = 
 
 * Login Integration: Automatically logs the user into your forum when they login to your WordPress website.
@@ -41,8 +43,6 @@ Website Toolbox allows you to easily add a Forum to your website without any cod
 * Announce and organize events
 * Get feedback from users
 * Set user permissions
-
-Ranked #1 forum provider by StarReviews!
 
 <a href="http://www.websitetoolbox.com/forum-hosting/index.html">Learn More</a>
 

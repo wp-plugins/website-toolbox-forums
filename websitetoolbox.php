@@ -299,6 +299,10 @@ function websitetoolbox_admin_options() {
 	<?php
 	#create a form in the wordpress admin panel
 	echo <<<STUFF
+	<p>Please <a href="http://www.websitetoolbox.com/tool/members/login" target="_blank">login to your Website Toolbox account</a> to retreive your account details and enter them below. </p>
+	<p>Not a Website Toolbox Forum owner? <a href="http://www.websitetoolbox.com/forum-hosting/index.html" target="_blank">Create a Forum Now!</a></p>
+	<p>Need help getting setup? <a href="http://www.websitetoolbox.com/cgi/tools/hr.cgi?subject=WordPress+Plugin+Setup+Help" target="_blank">Contact Customer Support</a><p>
+	
 	<form name="form_lol" method="post" action="options-general.php?page=websitetoolboxoptions" style="margin: 15px 0">
 		<table width="100%" cellpadding="0" cellspacing="0">
 			<tr><td width="15%"><strong>Website Toolbox Username:</strong></td><td style="padding-top:10px;"><input type="text" name="websitetoolbox_username" id="websitetoolbox_username" value="$websitetoolbox_username" size="50"/></td><td style="padding-left:5px; padding-right:5px; padding-top:10px;" >&nbsp;</td></tr>
