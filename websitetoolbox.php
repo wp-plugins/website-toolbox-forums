@@ -169,9 +169,9 @@ function websitetoolbox_admin_options() {
 		$page = get_page($websitetoolboxpage_id);  
 		
 		
-		$row_post_link = get_post_meta( $post_ID, '_links_to', true );
-		$row_post_target = get_post_meta( $post_ID, '_links_to_target', true );
-		$row_post_type = get_post_meta( $post_ID, '_links_to_type', true );
+		$row_post_link = get_post_meta( $websitetoolboxpage_id, '_links_to', true );
+		$row_post_target = get_post_meta( $websitetoolboxpage_id, '_links_to_target', true );
+		$row_post_type = get_post_meta( $websitetoolboxpage_id, '_links_to_type', true );
 		
 		if($row_post_link){
 			update_post_meta( $post_ID, '_links_to', $websitetoolbox_url );
@@ -179,14 +179,17 @@ function websitetoolbox_admin_options() {
 			add_post_meta( $post_ID, '_links_to', $websitetoolbox_url );
 		}
 		if($row_post_target) {
-			update_post_meta( $post_ID, '_links_to_target', '_blank' );
+			update_post_meta( $post_ID, '_links_to_target', 'websitetoolbox' );
 		} else {
-			add_post_meta( $post_ID, '_links_to_target', '_blank' );
+			add_post_meta( $post_ID, '_links_to_target', 'websitetoolbox' );
 		}
 		if($row_post_type) {
 			update_post_meta( $post_ID, '_links_to_type', 'custom_post_type' );
 		} else {
 			add_post_meta( $post_ID, '_links_to_type', 'custom_post_type' );
+		}
+		if(!$row_post_type) {
+			add_post_meta( $post_ID, '_wtbredirect_active', '1' );
 		}
 		#end of check post meta
 		
@@ -204,12 +207,14 @@ function websitetoolbox_admin_options() {
 			wp_update_post($page); 
 			$page->post_content = "<iframe src='".$wtb_url."' style='width: 100%; height:600px;'></iframe> ";
 			wp_update_post($page);  
+			update_post_meta( $post_ID, '_wtbredirect_active', '' );
 		} else {
 			#open forum in new window
 			$websitetoolboxpage_id = get_option('websitetoolbox_pageid');
 			$page = get_page($websitetoolboxpage_id);
-			$page->post_title = "<a href='".$wtb_url."' target='_blank' >Forum</a>";
-			wp_update_post($page);  
+			$page->post_content = "";
+			wp_update_post($page); 
+			update_post_meta( $post_ID, '_wtbredirect_active', '1' );
 		}
 		# 1 px image sent request for login
 		$login_url = "<img src='<?php echo get_option(websitetoolbox_url); ?>/register/dologin?authtoken=<?php echo \$_COOKIE[wt_login_success];?>' border='0' width='1' height='1' alt=''>";
@@ -376,9 +381,9 @@ function wt_login_user($user_login) {
 	$response_xml = preg_replace_callback('/<!\[CDATA\[(.*)\]\]>/', 'filter_xml', $response);
 	$response_xml = simplexml_load_string($response_xml);
 	
-	if(htmlentities($response_xml->errormessage) != "" && $username != 'admin') {
+	if(htmlentities($response_xml->error) != "" && $username != 'admin') {
 		#return an error message 
-		wp_die(htmlentities($response_xml->errormessage));
+		wp_die(htmlentities($response_xml->error));
 	} else {
 		if(htmlentities($response_xml->authtoken)) {
 			$resultdata = htmlentities($response_xml->authtoken);
@@ -485,3 +490,66 @@ add_action('user_register', 'wt_register_user');
 
 register_activation_hook( __FILE__, 'websitetoolbox_activate' );
 register_deactivation_hook( __FILE__, 'websitetoolbox_deactivate' );
+
+# for URl making
+if (!function_exists('esc_attr')) {
+	function esc_attr($attr){return attribute_escape( $attr );}
+	function esc_url($url){return clean_url( $url );}
+}
+
+#get all link of the menu
+if(get_option("websitetoolbox_redirect") == '') {	
+	function filter_page_links_wtb ($link, $post) {		
+		if(isset($post->ID)) {	
+			$id = $post->ID;
+		} else {
+			$id = $post;
+		}
+		#get array
+		$newCheck = get_main_array();
+		if(!is_array($newCheck)) { $newCheck = array(); }
+		#check array according to the key if forum used external url
+		if(array_key_exists($id, $newCheck)) {
+			$matchedID = $newCheck[$id];
+			$newURL = $matchedID['_links_to'];
+			if(strpos($newURL,get_option('home'))>=0 || strpos($newURL,'www.')>=0 || strpos($newURL,'http://')>=0 || strpos($newURL,'https://')>=0) {			
+				$link = trim($matchedID['_links_to']);
+				if($matchedID['_links_to_target'] == 'websitetoolbox') {
+					$newURL =  trim($matchedID['_links_to']);
+				} else {
+					$newURL = esc_url( $newURL );
+				}
+			} else {
+				if($matchedID['_links_to_target'] == 'websitetoolbox') {
+					$link = esc_url( $newURL );
+				} else {
+					$link = esc_url( get_option( 'home').'/'. $newURL );
+				}
+			}
+		}
+		return $link;
+	}
+	add_filter('page_link', filter_page_links_wtb, 20, 2);
+}
+
+# Get main array from the post meta and post table according to redirest url
+function get_main_array(){
+	global $wpdb;
+	$theArray = array();
+	
+	$theqsl = "SELECT * FROM $wpdb->postmeta a, $wpdb->posts b  WHERE a.`post_id`=b.`ID` AND b.`post_status`!='trash' AND (a.`meta_key` = '_wtbredirect_active' || a.`meta_key` = '_links_to' || a.`meta_key` = '_links_to_target' || a.`meta_key` = '_links_to_type') ORDER BY a.`post_id` ASC;";
+	$thetemp = $wpdb->get_results($theqsl);
+	if(count($thetemp)>0){
+		foreach($thetemp as $key){
+			$theArray[$key->post_id][$key->meta_key] = $key->meta_value;
+		}
+		foreach($thetemp as $key){
+			// defaults
+			if(!isset($theArray[$key->post_id]['_links_to'])){$theArray[$key->post_id]['_links_to']	= 0;}
+			if(!isset($theArray[$key->post_id]['_links_to_type'] )){$theArray[$key->post_id]['_links_to_type']				= 302;}
+			if(!isset($theArray[$key->post_id]['_links_to_target'])){$theArray[$key->post_id]['_links_to_target']	= 0;}
+		}
+
+	}
+	return $theArray;
+}
