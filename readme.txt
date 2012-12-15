@@ -59,7 +59,7 @@ Ranked #1 forum provider by StarReviews!
 7. Here, you may easily update your settings according to your Website Toolbox account information.
 8. In the Settings -> Single Sign On section of your Website Toolbox account, specify the address of your website's Login, Logout, and Registration page to ensure that all forum logins occur using your website's login form.
 
-Please contact Customer Support if you face any difficulties: http://www.websitetoolbox.com/cgi/tools/hr.cgi?action=contact
+Please <a href="http://www.websitetoolbox.com/cgi/tools/hr.cgi">contact Customer Support</a> if you face any difficulties.
 
 ### Manual Installation
 1. Upload the ZIP file to the `/wp-content/plugins/` directory
