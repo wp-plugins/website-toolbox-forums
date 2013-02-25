@@ -8,7 +8,6 @@
 Plugin Name: Website Toolbox Forum
 Description: The SSO API allows you to integrate your forum's registration, login, and logout process with your website. <a href="http://www.websitetoolbox.com/support/241" target="_blank">Setup Instructions...</a>
 Author: Team Website Toolbox | <a href="options-general.php?page=websitetoolboxoptions">Settings</a>
-Version: 1.0.0
 Purpose: Integrate SSO feature with your WordPress website
 */
 
@@ -359,6 +358,10 @@ function wt_login_user($user_login) {
 	require("websitetoolbox_sso.php");
 	$user_obj = new WP_User(0,$user_login);
 	$username = urlencode($user_obj->user_login);
+	$display_name = urlencode($user_obj->display_name); # ie: John Doe
+	$first_name = urlencode($user_obj->first_name); # ie: John
+	$last_name = urlencode($user_obj->last_name); # ie: Doe
+	
 	$forum_username = get_option("websitetoolbox_username");
 	$forum_api		= get_option("websitetoolbox_api");
 	$forum_url		= get_option("websitetoolbox_url");
@@ -458,10 +461,14 @@ function wt_register_user($userid) {
 	}
 	$HOST = str_replace('http://','',$forum_url);
 	$login_id = $user_obj->ID;
-	$login 	  = $user_obj->user_login;
+	$login 	  = $user_obj->user_login; # ie: JohnD223
 	$password = $user_obj->user_pass;
 	$email 	  = $user_obj->user_email;
-	$parameters = "&member=".urlencode($login);
+	$display_name = $user_obj->display_name; # ie: John Doe
+	$first_name = $user_obj->first_name; # ie: John
+	$last_name = $user_obj->last_name; # ie: Doe
+	
+	$parameters = "&member=".urlencode($login); # this is the username displayed on the forum
 	$parameters .= "&apikey=".$forum_api;
 	$parameters .= "&pw=".urlencode($password);
 	$parameters .= "&email=".urlencode($email);
