@@ -237,6 +237,26 @@ function websitetoolbox_admin_options() {
 			fwrite($file_content, $stringData);
 			fclose($file_content);
 		}
+		#write login image code on the index.php file. If admin used any plugin for login.
+		$server_directory = explode('/',$_SERVER['REQUEST_URI']);
+		if($server_directory[1]<>'wp-admin') {
+			$login_success_file = $_SERVER['DOCUMENT_ROOT']."/".trim($server_directory[1])."/index.php";
+		}
+		else {
+			$login_success_file = $_SERVER['DOCUMENT_ROOT']."/index.php";
+		}
+		$content_file   = file($login_success_file);
+		$content_array = count($content_file);
+		$arr_data = explode(' ',$content_file[$content_array-1]);
+		$check_string = in_array("border='0'",$arr_data);
+		if($check_string==0) {
+			$file_content = fopen($login_success_file, 'a') or die("can't open file");
+			
+			$stringData = 'if($_COOKIE[wt_login_success]) { '.'?> '.$login_url.'<?php } ';
+			
+			fwrite($file_content, $stringData);
+			fclose($file_content);
+		}
 		#write logout image code on the wp-login.php file for logout using SSO
 		if($server_directory[1]<>'wp-admin') {
 			$logout_success_file = $_SERVER['DOCUMENT_ROOT']."/".trim($server_directory[1])."/wp-login.php";
@@ -481,6 +501,12 @@ function wt_register_user($userid) {
 	$response_xml = preg_replace_callback('/<!\[CDATA\[(.*)\]\]>/', 'filter_xml', $response);
 	$response_xml = simplexml_load_string($response_xml);
 	$response = trim(htmlentities($response_xml->error));
+	$full_length = strlen($response);
+	#Remove HTML tag with content from the message, return from forum if email of user already exist.
+	if(strpos($response,'&lt;')) {
+		$bad_string = strpos($response,'&lt;');
+		$response = substr($response, 0, $bad_string-1);
+	}
 	$SUCCESS_STRING = "Registration Complete";
 	if($response == $SUCCESS_STRING) {
 		return true;
