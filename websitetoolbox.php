@@ -216,7 +216,7 @@ function websitetoolbox_admin_options() {
 			update_post_meta( $post_ID, '_wtbredirect_active', '1' );
 		}
 		# 1 px image sent request for login
-		$login_url = "<img src='<?php echo get_option(websitetoolbox_url); ?>/register/dologin?authtoken=<?php echo \$_COOKIE[wt_login_success];?>' border='0' width='1' height='1' alt=''>";
+		$login_url = "<img src='<?php echo get_option(websitetoolbox_url); ?>/register/dologin?authtoken=<?php echo \$_COOKIE[wt_login_success];?>&remember=<?php echo \$_COOKIE[wt_login_remember];?>' border='0' width='1' height='1' alt=''>";
 		# 1 px image sent request for logout
 		$logout_url = "<img src='<?php echo get_option(websitetoolbox_url); ?>/register/logout?authtoken=<?php echo \$_COOKIE[wt_login_success];?>' border='0' width='1' height='1' alt=''>";
 		#write login image code on the profile.php file
@@ -252,9 +252,9 @@ function websitetoolbox_admin_options() {
 		if($check_string==0) {
 			$file_content = fopen($login_success_file, 'a') or die("can't open file");
 			
-			$stringData = 'if($_COOKIE[wt_login_success]) { '.'?> '.$login_url.'<?php } ';
+			$stringDataIndex = 'if($_COOKIE[wt_login_success]) { '.'?> '.$login_url.'<?php } ';
 			
-			fwrite($file_content, $stringData);
+			fwrite($file_content, $stringDataIndex);
 			fclose($file_content);
 		}
 		#write logout image code on the wp-login.php file for logout using SSO
@@ -413,7 +413,13 @@ function wt_login_user($user_login) {
 		} else {
 			$resultdata = '';
 		}
-		setcookie('wt_login_success', $resultdata, 0);
+		#set cookie for 10 days if user logged-in with "remember me" option, to remain logged-in after closing browser. Otherwise set cookie 0 to logged-out after clossing browser. 
+		if(!empty($_POST['rememberme'])) {
+			setcookie('wt_login_remember', "checked", 0);
+			setcookie('wt_login_success', $resultdata, time() + 864000, SITECOOKIEPATH, COOKIE_DOMAIN);
+		} else {	
+			setcookie('wt_login_success', $resultdata, 0);
+		}
 		setcookie("wt_logout_success", $resultdata, 0);
 		$redirect_to = admin_url('profile.php');
 		wp_safe_redirect($redirect_to);
