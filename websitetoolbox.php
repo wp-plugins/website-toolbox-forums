@@ -91,8 +91,7 @@ function websitetoolbox_add_admin_menu() {
 #create forum settings page for admin panel
 function websitetoolbox_admin_options() {
 	$pageurl = get_page_link(get_option('websitetoolbox_pageid'));
-	echo "<h2>Website Toolbox Forum</h2>";    
-	echo "<h2>Forum Settings</h2>";
+	echo "<h2>Website Toolbox Forum</h2>";
 	if($_POST) { 
 		global $wpdb;
 		if($_POST['websitetoolbox_username']!="") {
@@ -323,16 +322,18 @@ function websitetoolbox_admin_options() {
 	<?php
 	#create a form in the wordpress admin panel
 	echo <<<STUFF
-	<p>Please <a href="http://www.websitetoolbox.com/tool/members/login" target="_blank">login to your Website Toolbox account</a> to retreive your account details and enter them below. </p>
-	<p>Not a Website Toolbox Forum owner? <a href="http://www.websitetoolbox.com/forum-hosting/index.html" target="_blank">Create a Forum Now!</a></p>
-	<p>Need help getting setup? <a href="http://www.websitetoolbox.com/cgi/tools/hr.cgi?subject=WordPress+Plugin+Setup+Help" target="_blank">Contact Customer Support</a><p>
-	
+	<OL><LI><a href="http://www.websitetoolbox.com/cgi/members/defaults.cgi?action=showsignup&tool=mb&name=Forum" target="_blank">Create a forum on Website Toolbox</a> or <a href="http://www.websitetoolbox.com/tool/members/login" target="_blank">login to your existing Website Toolbox forum</a>.</LI>
+	<LI>Click the <i>Settings</i> link in the navigation menu at the top. In the Settings menu, select the <i>Single Sign On</i> option.</LI>
+	<LI>On the Single Sign On settings page, specify the Login, Logout, and Registration page address (URL) of your WordPress website and <i>Save</i> your changes. If your WordPress website doesn't have these pages, skip this step.</LI>
+	<LI>Copy the <i>API Key</i> from the Single Sign On settings page and paste it into the <i>Forum API Key</i> text box on this WordPress plugin setup page.</LI>
+	<LI>Provide your <i>Website Toolbox Username</i> and <i>Forum Address</i>  in the text boxes below and click the <i>Update</i> button.</LI>
+	<p>Please <a href="http://www.websitetoolbox.com/cgi/tools/hr.cgi?subject=WordPress+Plugin+Setup+Help" target="_blank">Contact Customer Support</a> if you need help getting setup.</p></OL>
 	<form name="form_lol" method="post" action="options-general.php?page=websitetoolboxoptions" style="margin: 15px 0">
 		<table width="100%" cellpadding="0" cellspacing="0">
-			<tr><td width="15%"><strong>Website Toolbox Username:</strong></td><td style="padding-top:10px;"><input type="text" name="websitetoolbox_username" id="websitetoolbox_username" value="$websitetoolbox_username" size="50"/></td><td style="padding-left:5px; padding-right:5px; padding-top:10px;" >&nbsp;</td></tr>
-			<tr><td width="15%" style="padding-top:10px;"><strong>Forum API Key:</strong></td><td style="padding-top:10px;"><input type="text" name="websitetoolbox_api" id="websitetoolbox_api" value="$websitetoolbox_api" size="50"/></td><td style="padding-left:5px; padding-right:5px; padding-top:10px;">You can get your API Key in the Settings -> Single Sign On section of your Website Toolbox account.</td></tr>
+			<tr><td width="15%"><strong>Website Toolbox Username:</strong></td><td style="padding-top:10px;"><input type="text" name="websitetoolbox_username" id="websitetoolbox_username" value="$websitetoolbox_username" size="50"/></td><td style="padding-left:5px; padding-right:5px; padding-top:10px;" >If you do not have an account, then please <a href="http://www.websitetoolbox.com/cgi/members/defaults.cgi?action=showsignup&tool=mb&name=Forum" target="_blank">create an account</a> to get your username. </td></tr>
+			<tr><td width="15%" style="padding-top:10px;"><strong>Forum API Key:</strong></td><td style="padding-top:10px;"><input type="text" name="websitetoolbox_api" id="websitetoolbox_api" value="$websitetoolbox_api" size="50"/></td><td style="padding-left:5px; padding-right:5px; padding-top:10px;">Get your <a href="http://www.websitetoolbox.com/support/252" target="_blank">API key</a>.</td></tr>
 			<tr><td width="15%" style="padding-top:10px;"><strong>Forum Address:</strong></td><td style="padding-top:10px;" ><input type="text" name="websitetoolbox_url" id="websitetoolbox_url" value="$websitetoolbox_url" size="50"/></td><td style="padding-left:5px; padding-right:5px; padding-top:10px;">You can get your Forum address by visiting the dashboard of your Website Toolbox account. </td></tr>
-			<tr><td width="15%" style="padding-top:10px;"><strong>Embed the forum:</strong></td><td style="padding-top:10px;" ><input type="checkbox" name="websitetoolbox_redirect" id="websitetoolbox_redirect" value="1" $check_if /></td><td style="padding-left:5px; padding-right:5px; padding-top:10px;">Enable this option to have your forum load within an iframe on your website. <br>Disable this option to have your forum load in a full-sized window. You can use the Layout section in your Website Toolbox account to customize your forum layout to match your website or contact Website Toolbox support to customize it for you. </td></tr>
+			<tr><td width="15%" style="padding-top:10px;"><strong>Embed the forum:</strong></td><td style="padding-top:10px;" ><input type="checkbox" name="websitetoolbox_redirect" id="websitetoolbox_redirect" value="1" $check_if /></td><td style="padding-left:5px; padding-right:5px; padding-top:10px;">Enable this option to have your forum load within an iframe on your website. <br>Disable this option to have your forum load in a full-sized window. You can use the Layout section in your Website Toolbox account to <a href="http://www.websitetoolbox.com/support/148" target="_blank">customize your forum layout to match your website</a> or contact Website Toolbox support to customize it for you. </td></tr>
 			<tr><td style="padding-top:10px;">&nbsp;</td><td style="padding-top:10px;"><input type="submit" name="submit" class="button-primary" value="Update" onClick="return ValidateForm();"/> </td></tr>
 		</table> 
 	</form>
