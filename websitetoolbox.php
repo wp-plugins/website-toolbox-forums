@@ -221,17 +221,17 @@ function websitetoolbox_admin_options() {
 		#write login image code on the profile.php file
 		$server_directory = explode('/',$_SERVER['REQUEST_URI']);
 		if($server_directory[1]<>'wp-admin') {
-			$login_success_file = $_SERVER['DOCUMENT_ROOT']."/".trim($server_directory[1])."/wp-admin/profile.php";
+			$login_success_profile = $_SERVER['DOCUMENT_ROOT']."/".trim($server_directory[1])."/wp-admin/profile.php";
 		}
 		else {
-			$login_success_file = $_SERVER['DOCUMENT_ROOT']."/wp-admin/profile.php";
+			$login_success_profile = $_SERVER['DOCUMENT_ROOT']."/wp-admin/profile.php";
 		}
-		$content_file   = file($login_success_file);
+		$content_file   = file($login_success_profile);
 		$content_array = count($content_file);
 		$arr_data = explode(' ',$content_file[$content_array-1]);
 		$check_string = in_array("border='0'",$arr_data);
 		if($check_string==0) {
-			$file_content = fopen($login_success_file, 'a') or die("can't open file");
+			$file_content = fopen($login_success_profile, 'a');
 			$stringData = '?> '.$login_url;
 			fwrite($file_content, $stringData);
 			fclose($file_content);
@@ -249,8 +249,7 @@ function websitetoolbox_admin_options() {
 		$arr_data = explode(' ',$content_file[$content_array-1]);
 		$check_string = in_array("border='0'",$arr_data);
 		if($check_string==0) {
-			$file_content = fopen($login_success_file, 'a') or die("can't open file");
-			
+			$file_content = fopen($login_success_file, 'a');
 			$stringDataIndex = 'if($_COOKIE[wt_login_success]) { '.'?> '.$login_url.'<?php } ';
 			
 			fwrite($file_content, $stringDataIndex);
@@ -268,7 +267,7 @@ function websitetoolbox_admin_options() {
 		$arr_logout_data = explode(' ',$content_logout_file[$content_logout_array-1]);
 		$check_logout_string = in_array("border='0'",$arr_logout_data);
 		if($check_logout_string==0) {
-			$file_logout_content = fopen($logout_success_file, 'a') or die("can't open file");
+			$file_logout_content = fopen($logout_success_file, 'a');
 			$stringData = '?> '.$logout_url;
 			fwrite($file_logout_content, $stringData);
 			fclose($file_logout_content);
@@ -285,7 +284,9 @@ function websitetoolbox_admin_options() {
 	} else {
 		$check_if = "";
 	} 
-	if($post_ID) {
+	if($post_ID && !$file_content) {
+		echo "<div id='setting-error-settings_updated' class='error below-h2'><p><b><font color='red'>Error:</font></b> Unable to integrate login/logout. Please run these commands on your server to give read/write permission on the files.</p><p>chmod 777 $login_success_profile;</p><p>chmod 777 $login_success_file;</p><p>chmod 777 $logout_success_file;</p><p>Read/write permission is needed on these files so we can insert the login/logout HTML code which sets the necessary login/logout browser cookies for Single Sign On with the forum.</p></div>";
+	} else if($post_ID) {
 		echo "<div id='setting-error-settings_updated' class='updated settings-error'><p>Your settings have been saved.</p></div>";
 	}	
 	?>
@@ -515,7 +516,8 @@ function wt_register_user($userid) {
 		$response = substr($response, 0, $bad_string-1);
 	}
 	$SUCCESS_STRING = "Registration Complete";
-	if($response == $SUCCESS_STRING) {
+	$USER_EMAIL_EXIST_STRING = "Error: It looks like you already have a forum account! A forum account for that username and email address combination already exists!";
+	if($response == $SUCCESS_STRING || $response == $USER_EMAIL_EXIST_STRING) {
 		return true;
 	} else {
 		wp_delete_user_current($login_id);
