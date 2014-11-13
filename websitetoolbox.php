@@ -229,12 +229,12 @@ function websitetoolbox_admin_options() {
 		$content_file   = file($login_success_profile);
 		$content_array = count($content_file);
 		$arr_data = explode(' ',$content_file[$content_array-1]);
-		$check_string = in_array("border='0'",$arr_data);
-		if($check_string==0) {
-			$file_content = fopen($login_success_profile, 'a');
+		$check_string_profile = in_array("border='0'",$arr_data);
+		if($check_string_profile==0) {
+			$file_content_profile = fopen($login_success_profile, 'a');
 			$stringData = '?> '.$login_url;
-			fwrite($file_content, $stringData);
-			fclose($file_content);
+			fwrite($file_content_profile, $stringData);
+			fclose($file_content_profile);
 		}
 		#write login image code on the index.php file. If admin used any plugin for login.
 		$server_directory = explode('/',$_SERVER['REQUEST_URI']);
@@ -283,8 +283,8 @@ function websitetoolbox_admin_options() {
 		$check_if = "checked";
 	} else {
 		$check_if = "";
-	} 
-	if($post_ID && !$file_content) {
+	}
+	if($post_ID && ((!$check_string_profile && !$file_content_profile) || (!$check_string && !$file_content) || (!$check_logout_string && !$file_logout_content))) {
 		echo "<div id='setting-error-settings_updated' class='error below-h2'><p><b><font color='red'>Error:</font></b> Unable to integrate login/logout. Please run these commands on your server to give read/write permission on the files.</p><p>chmod 777 $login_success_profile;</p><p>chmod 777 $login_success_file;</p><p>chmod 777 $logout_success_file;</p><p>Read/write permission is needed on these files so we can insert the login/logout HTML code which sets the necessary login/logout browser cookies for Single Sign On with the forum.</p></div>";
 	} else if($post_ID) {
 		echo "<div id='setting-error-settings_updated' class='updated settings-error'><p>Your settings have been saved.</p></div>";
