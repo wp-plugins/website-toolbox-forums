@@ -229,7 +229,7 @@ function websitetoolbox_admin_options() {
 		$content_file   = file($login_success_profile);
 		$content_array = count($content_file);
 		$arr_data = explode(' ',$content_file[$content_array-1]);
-		$check_string_profile = in_array("border='0'",$arr_data);
+		$check_string_profile = in_array("get_option(websitetoolbox_url);",$arr_data);
 		if($check_string_profile==0) {
 			$file_content_profile = fopen($login_success_profile, 'a');
 			$stringData = '?> '.$login_url;
@@ -247,7 +247,7 @@ function websitetoolbox_admin_options() {
 		$content_file   = file($login_success_file);
 		$content_array = count($content_file);
 		$arr_data = explode(' ',$content_file[$content_array-1]);
-		$check_string = in_array("border='0'",$arr_data);
+		$check_string = in_array("get_option(websitetoolbox_url);",$arr_data);
 		if($check_string==0) {
 			$file_content = fopen($login_success_file, 'a');
 			$stringDataIndex = 'if($_COOKIE[wt_login_success]) { '.'?> '.$login_url.'<?php } ';
@@ -265,7 +265,7 @@ function websitetoolbox_admin_options() {
 		$content_logout_file   = file($logout_success_file);
 		$content_logout_array = count($content_logout_file);
 		$arr_logout_data = explode(' ',$content_logout_file[$content_logout_array-1]);
-		$check_logout_string = in_array("border='0'",$arr_logout_data);
+		$check_logout_string = in_array("get_option(websitetoolbox_url);",$arr_logout_data);
 		if($check_logout_string==0) {
 			$file_logout_content = fopen($logout_success_file, 'a');
 			$stringData = '?> '.$logout_url;
