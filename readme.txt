@@ -2,7 +2,7 @@
 Contributors: websitetoolbox
 Tags: forum, message board, discussion board, discussion forum, bulletin board, community, saas forum, cloud forum, website forum, discussion group
 Requires at least: 3.0.0
-Tested up to: 4.0
+Tested up to: 4.1
 Stable Tag: 1.0.0
 
 Website Toolbox is the easiest way to create a powerful forum. This plugin embeds your Website Toolbox Forum and integrates single sign on.
@@ -59,7 +59,7 @@ Ranked #1 forum provider by StarReviews!
 7. Here, you may easily update your settings according to your Website Toolbox account information.
 8. In the Settings -> Single Sign On section of your Website Toolbox account, specify the address of your website's Login, Logout, and Registration page to ensure that all forum logins occur using your website's login form.
 
-Please <a href="http://www.websitetoolbox.com/cgi/tools/hr.cgi">contact Customer Support</a> if you face any difficulties.
+Please <a href="http://www.websitetoolbox.com/contact">contact Customer Support</a> if you face any difficulties.
 
 ### Manual Installation
 1. Upload the ZIP file to the `/wp-content/plugins/` directory
