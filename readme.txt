@@ -15,7 +15,7 @@ Website Toolbox allows you to easily add a Forum to your website without any cod
 
 Ranked #1 forum provider by StarReviews!
 
- = The plugin has the following features: = 
+= The plugin has the following features: =
 
 * Login Integration: Automatically logs the user into your forum when they login to your WordPress website.
 
@@ -24,7 +24,7 @@ Ranked #1 forum provider by StarReviews!
 * Embedded forum: The forum is automatically embedded into the layout of your WordPress website.
 
 
-= Key forum benefits: = 
+= Key forum benefits: =
 
 * Instant Setup
 * Fully Customizable
@@ -35,14 +35,20 @@ Ranked #1 forum provider by StarReviews!
 * White Label
 
 
- = Key forum features: = 
+= Key forum features: =
 
+* Make money using ads or subscription fees
+* SEO and Mobile friendly
 * Facebook Integration
-* Facebook-style chat bar
+* Instant Messaging
+* Chat Room
 * Share files and photos
+* "Like" posts
+* User reputation
 * Announce and organize events
 * Get feedback from users
 * Set user permissions
+* Moderate content and users
 
 <a href="http://www.websitetoolbox.com/forum-hosting/index.html">Learn More</a>
 
@@ -59,7 +65,7 @@ Ranked #1 forum provider by StarReviews!
 7. Here, you may easily update your settings according to your Website Toolbox account information.
 8. In the Settings -> Single Sign On section of your Website Toolbox account, specify the address of your website's Login, Logout, and Registration page to ensure that all forum logins occur using your website's login form.
 
-Please <a href="http://www.websitetoolbox.com/contact">contact Customer Support</a> if you face any difficulties.
+Please <a href="http://www.websitetoolbox.com/contact?subject=WordPress+Plugin+Setup+Help">contact Customer Support</a> if you face any difficulties.
 
 ### Manual Installation
 1. Upload the ZIP file to the `/wp-content/plugins/` directory
