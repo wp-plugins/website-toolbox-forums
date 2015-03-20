@@ -27,18 +27,16 @@ Ranked #1 forum provider by StarReviews!
 = Key forum benefits: = 
 
 * Instant Setup
+* Phone/Chat/Email Support
+* SEO and Mobile friendly
 * Fully Customizable
 * Public or Private
-* Fanatic Support
-* SEO Friendly
-* Moderation
 * White Label
 
 
  = Key forum features: = 
 
 * Make money using ads or subscription fees
-* SEO and Mobile friendly
 * Facebook Integration
 * Instant Messaging
 * Chat Room
@@ -46,7 +44,7 @@ Ranked #1 forum provider by StarReviews!
 * "Like" posts
 * User reputation
 * Announce and organize events
-* Get feedback from users
+* Create polls
 * Set user permissions
 * Moderate content and users
 
