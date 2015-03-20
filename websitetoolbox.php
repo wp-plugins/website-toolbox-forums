@@ -6,13 +6,14 @@
 /*
 Plugin Name: Website Toolbox Forum
 Description: The SSO API allows you to integrate your forum's registration, login, and logout process with your website.
-Version: 1.0.0
+Version: 1.1.0
 Author: Team Website Toolbox | <a href="options-general.php?page=websitetoolboxoptions">Settings</a>
 Purpose: Integrate SSO feature with your WordPress website
 */
 
 ob_start();
-#insert forum title, defalut page content, plugin status, in the option table
+session_start();
+#insert forum title, default page content, plug-in status, in the option table
 function create_websitetoolbox_page() {
     $my_post = array();
     $page_named_forum = get_page_by_title('Forum');
@@ -214,64 +215,6 @@ function websitetoolbox_admin_options() {
 			wp_update_post($page); 
 			update_post_meta( $post_ID, '_wtbredirect_active', '1' );
 		}
-		# 1 px image sent request for login
-		$login_url = "<img src='<?php echo get_option(websitetoolbox_url); ?>/register/dologin?authtoken=<?php echo \$_COOKIE[wt_login_success];?>&remember=<?php echo \$_COOKIE[wt_login_remember];?>' border='0' width='1' height='1' alt=''>";
-		# 1 px image sent request for logout
-		$logout_url = "<img src='<?php echo get_option(websitetoolbox_url); ?>/register/logout?authtoken=<?php echo \$_COOKIE[wt_login_success];?>' border='0' width='1' height='1' alt=''>";
-		#write login image code on the profile.php file
-		$server_directory = explode('/',$_SERVER['REQUEST_URI']);
-		if($server_directory[1]<>'wp-admin') {
-			$login_success_profile = $_SERVER['DOCUMENT_ROOT']."/".trim($server_directory[1])."/wp-admin/profile.php";
-		}
-		else {
-			$login_success_profile = $_SERVER['DOCUMENT_ROOT']."/wp-admin/profile.php";
-		}
-		$content_file   = file($login_success_profile);
-		$content_array = count($content_file);
-		$arr_data = explode(' ',$content_file[$content_array-1]);
-		$check_string_profile = in_array("get_option(websitetoolbox_url);",$arr_data);
-		if($check_string_profile==0) {
-			$file_content_profile = fopen($login_success_profile, 'a');
-			$stringData = '?> '.$login_url;
-			fwrite($file_content_profile, $stringData);
-			fclose($file_content_profile);
-		}
-		#write login image code on the index.php file. If admin used any plugin for login.
-		$server_directory = explode('/',$_SERVER['REQUEST_URI']);
-		if($server_directory[1]<>'wp-admin') {
-			$login_success_file = $_SERVER['DOCUMENT_ROOT']."/".trim($server_directory[1])."/index.php";
-		}
-		else {
-			$login_success_file = $_SERVER['DOCUMENT_ROOT']."/index.php";
-		}
-		$content_file   = file($login_success_file);
-		$content_array = count($content_file);
-		$arr_data = explode(' ',$content_file[$content_array-1]);
-		$check_string = in_array("get_option(websitetoolbox_url);",$arr_data);
-		if($check_string==0) {
-			$file_content = fopen($login_success_file, 'a');
-			$stringDataIndex = 'if($_COOKIE[wt_login_success]) { '.'?> '.$login_url.'<?php } ';
-			
-			fwrite($file_content, $stringDataIndex);
-			fclose($file_content);
-		}
-		#write logout image code on the wp-login.php file for logout using SSO
-		if($server_directory[1]<>'wp-admin') {
-			$logout_success_file = $_SERVER['DOCUMENT_ROOT']."/".trim($server_directory[1])."/wp-login.php";
-		} else {
-			$logout_success_file = $_SERVER['DOCUMENT_ROOT']."/wp-login.php";
-		}
-		
-		$content_logout_file   = file($logout_success_file);
-		$content_logout_array = count($content_logout_file);
-		$arr_logout_data = explode(' ',$content_logout_file[$content_logout_array-1]);
-		$check_logout_string = in_array("get_option(websitetoolbox_url);",$arr_logout_data);
-		if($check_logout_string==0) {
-			$file_logout_content = fopen($logout_success_file, 'a');
-			$stringData = '?> '.$logout_url;
-			fwrite($file_logout_content, $stringData);
-			fclose($file_logout_content);
-		}	
 	}
 	
 	#get Website Toolbox forum information from option table
@@ -284,11 +227,9 @@ function websitetoolbox_admin_options() {
 	} else {
 		$check_if = "";
 	}
-	if($post_ID && ((!$check_string_profile && !$file_content_profile) || (!$check_string && !$file_content) || (!$check_logout_string && !$file_logout_content))) {
-		echo "<div id='setting-error-settings_updated' class='error below-h2'><p><b><font color='red'>Error:</font></b> Unable to integrate login/logout. Please run these commands on your server to give read/write permission on the files.</p><p>chmod 777 $login_success_profile;</p><p>chmod 777 $login_success_file;</p><p>chmod 777 $logout_success_file;</p><p>Read/write permission is needed on these files so we can insert the login/logout HTML code which sets the necessary login/logout browser cookies for Single Sign On with the forum.</p></div>";
-	} else if($post_ID) {
+	if($post_ID) {
 		echo "<div id='setting-error-settings_updated' class='updated settings-error'><p>Your settings have been saved.</p></div>";
-	}	
+	}
 	?>
 	<script language="javascript">
 	/* validate admin form information */
@@ -418,19 +359,18 @@ function wt_login_user($user_login) {
 		#set cookie for 10 days if user logged-in with "remember me" option, to remain logged-in after closing browser. Otherwise set cookie 0 to logged-out after clossing browser. 
 		if(!empty($_POST['rememberme'])) {
 			setcookie('wt_login_remember', "checked", 0);
-			setcookie('wt_login_success', $resultdata, time() + 864000, SITECOOKIEPATH, COOKIE_DOMAIN);
-		} else {	
-			setcookie('wt_login_success', $resultdata, 0);
-		}
-		setcookie("wt_logout_success", $resultdata, 0);
-		$redirect_to = admin_url('profile.php');
-		wp_safe_redirect($redirect_to);
-		exit();
+		}		
+		setcookie("wt_logout_token", $resultdata, 0);
+		#Save authentication token into session variable.
+		save_authtoken('login',$resultdata);
+		return true;
 	}	
 }
 
 #logged-out a new user on the related forum
 function wt_logout_user() {
+	/* create a cookie variable if user successfully logged-out from WordPress site to sent logged-out request on the related websitetoolbox forum */
+	save_authtoken('logout',$_COOKIE['wt_logout_token']);
 	return false;
 }
 
@@ -537,15 +477,6 @@ function wtb_warning()
 	}	
 }
 
-#get user information
-add_action('wp_login','wt_login_user');
-add_action('wp_logout','wt_logout_user');
-add_action('user_register', 'wt_register_user');
-add_action('admin_notices', 'wtb_warning');
-
-register_activation_hook( __FILE__, 'websitetoolbox_activate' );
-register_deactivation_hook( __FILE__, 'websitetoolbox_deactivate' );
-
 # for URl making
 if (!function_exists('esc_attr')) {
 	function esc_attr($attr){return attribute_escape( $attr );}
@@ -608,3 +539,90 @@ function get_main_array(){
 	}
 	return $theArray;
 }
+
+/* Purpose: This function is used to set authentication token into session variable if user logged-in/logged-out.
+Param1: type (login/logout)
+Param2: authentication token
+Return: Nothing */
+function save_authtoken($type, $authtoken) {
+	if($type=='login') {
+		$_SESSION['wtb_login_auth_token'] = $authtoken;
+	} else if($type=='logout') {
+		$_SESSION['wtb_logout_auth_token'] = $authtoken;
+	}
+}
+
+/* Purpose: This function is used to unset session variable if user logged-in/logged-out.
+Param1: type (login/logout)
+Return: Nothing */
+function clean_authtoken($type) {
+	if($type=='login') {
+		unset($_SESSION['wtb_login_auth_token']);	
+	} else if($type=='logout')	{
+		unset($_SESSION['wtb_logout_auth_token']);
+		setcookie("wt_logout_token", '', 0);
+	}
+}
+
+/* Purpose: If a user logged-in on WordPress site from front end then get an authentication token and then print this authentication token into an image tag on footer section to logged-in on the related forum 
+Parameter: None
+Return: None */
+function ssoLoginFront() {
+	if (isset($_SESSION['wtb_login_auth_token'])) {
+		$login_auth_url = get_option(websitetoolbox_url)."/register/dologin?authtoken=".$_SESSION['wtb_login_auth_token'];
+		if($_COOKIE['wt_login_remember']) {
+			$login_auth_url = $login_auth_url."&remember=".$_COOKIE['wt_login_remember'];
+		}
+		/* Print image tag on the login landing success page to sent login request on the related forum */
+		echo "<img src='".$login_auth_url."' border='0' width='0' height='0' alt=''>";
+		/* remove authentication token from session variable so that above image tag not write again and again */
+		clean_authtoken('login');
+	}
+}	
+
+/* Purpose: If a user logged-in on WordPress site from admin section then get an authentication token and then print this authentication token into an image tag on footer section to logged-in on the related forum 
+Parameter: None
+Return: None */
+function ssoLoginAdmin() {
+    if (isset($_SESSION['wtb_login_auth_token'])) {
+		$login_auth_url = get_option(websitetoolbox_url)."/register/dologin?authtoken=".$_SESSION['wtb_login_auth_token'];
+		if($_COOKIE['wt_login_remember']) {
+			$login_auth_url = $login_auth_url."&remember=".$_COOKIE['wt_login_remember'];
+		}
+		/* Print image tag on the login landing success page to sent login request on the related forum */
+		echo "<img src='".$login_auth_url."' border='0' width='0' height='0' alt=''>";
+		/* remove authentication token from session variable so that above image tag not write again and again */
+		clean_authtoken('login');
+	}
+}
+
+/* Purpose: If a user logged-out on WordPress site from front end/admin section write an image tag after page load to loggout from forum.
+Parameter: None
+Return: None */
+function ssoLogout() {
+	if($_SESSION['wtb_logout_auth_token']) {
+		$logout_auth_url = get_option(websitetoolbox_url)."register/logout?authtoken=".$_SESSION['wtb_logout_auth_token'];
+		/* Print image tag on the header section sent logout request on the related forum */
+		echo "<img src='".$logout_auth_url."' border='0' width='0' height='0' alt=''>";
+		clean_authtoken('logout');
+	}
+}	
+
+/* Define Hook to get user information */
+/* wp_login hook called when user logged-in into wordpress site (front end/back end) */
+add_action('wp_login','wt_login_user');
+/* wp_logout hook called when user logged-out from wordpress site (front end/back end) */
+add_action('wp_logout','wt_logout_user');
+/* user_register hook called when a new account creates from from wordpress site (front end/back end) */
+add_action('user_register', 'wt_register_user');
+/* admin_notices to print notice(message) on admin section */
+add_action('admin_notices', 'wtb_warning');
+/* wp_footer to print any message into footer (front end) */
+add_action('wp_footer', 'ssoLoginFront');
+/* admin_footer to print any message into footer (front admin) */
+add_action('admin_footer', 'ssoLoginAdmin');
+/* wp_loaded called after load page */
+add_action('wp_loaded','ssoLogout');
+
+register_activation_hook( __FILE__, 'websitetoolbox_activate' );
+register_deactivation_hook( __FILE__, 'websitetoolbox_deactivate' );
