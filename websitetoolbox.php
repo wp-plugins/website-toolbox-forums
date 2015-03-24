@@ -264,7 +264,7 @@ function websitetoolbox_admin_options() {
 	<?php
 	#create a form in the wordpress admin panel
 	echo <<<STUFF
-	<OL><LI><a href="http://www.websitetoolbox.com/tool/members/signup?tool=mb&name=Forum" target="_blank">Create a forum on Website Toolbox</a> or <a href="http://www.websitetoolbox.com/tool/members/login" target="_blank">login to your existing Website Toolbox forum</a>.</LI>
+	<OL><LI><a href="http://www.websitetoolbox.com/message_board/forum.html?wordpress" target="_blank">Create a forum on Website Toolbox</a> or <a href="http://www.websitetoolbox.com/tool/members/login" target="_blank">login to your existing Website Toolbox forum</a>.</LI>
 	<LI>Click the <i>Settings</i> link in the navigation menu at the top. In the Settings menu, select the <i>Single Sign On</i> option.</LI>
 	<LI>On the Single Sign On settings page, specify the Login, Logout, and Registration page address (URL) of your WordPress website and <i>Save</i> your changes. If your WordPress website doesn't have these pages, skip this step.</LI>
 	<LI>Copy the <i>API Key</i> from the Single Sign On settings page and paste it into the <i>Forum API Key</i> text box on this WordPress plugin setup page.</LI>
