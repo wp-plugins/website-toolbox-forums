@@ -69,9 +69,10 @@ Please <a href="http://www.websitetoolbox.com/contact?subject=WordPress+Plugin+S
 1. Upload the ZIP file to the `/wp-content/plugins/` directory
 2. Unzip the compressed plugin.
 3. Activate the plugin through the 'Plugins' menu in WordPress
-4. You will now find a "Forum" tab on your website and a "Website Toolbox Forum" tab under "Settings" menu of your WordPress admin page.
-5. Here, you may easily update your settings according to your Website Toolbox account information.
-6. In the Settings -> Single Sign On section of your Website Toolbox account, specify the address of your website's Login, Logout, and Registration page to ensure that all forum logins occur using your website's login form.
+4. <a href="http://www.websitetoolbox.com/forum-hosting/index.html">Create a Website Toolbox Forum</a> if you don't already have one.
+5. Click on the Settings link under the Website Toolbox Forum plugin.
+6. Here, you may easily update your settings according to your Website Toolbox account information.
+7. In the Settings -> Single Sign On section of your Website Toolbox account, specify the address of your website's Login, Logout, and Registration page to ensure that all forum logins occur using your website's login form.
 
 == Frequently Asked Questions ==
 
