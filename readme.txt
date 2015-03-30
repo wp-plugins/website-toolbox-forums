@@ -79,3 +79,16 @@ Please <a href="http://www.websitetoolbox.com/contact?subject=WordPress+Plugin+S
 = I don't allow registration on my WordPress site, can I still use the forum? =
 
 Yes. If you don't have registration enabled on your WordPress site, your users can register an account directly on the forum. If you want users to be able to post without registering, you can simply enable guest posting or you can disable the User Accounts feature entirely so users don't even see the registration option.
+
+== Changelog ==
+
+= 1.2.0 =
+* When embedding the forum into a page, it now automatically resizes according to the height of the forum content so that no scrollbar will appear.
+* Added support for forums using SSL (https).
+
+= 1.1.0 =
+* Removed redirection to profile.php upon login.
+* Removed the need to write IMG tags in wordpress files to avoid read/write permissions.
+
+
+
