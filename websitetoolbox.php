@@ -6,7 +6,7 @@
 /*
 Plugin Name: Website Toolbox Forum
 Description: The SSO API allows you to integrate your forum's registration, login, and logout process with your website.
-Version: 1.1.0
+Version: 1.2.0
 Author: Team Website Toolbox | <a href="options-general.php?page=websitetoolboxoptions">Settings</a>
 Purpose: Integrate SSO feature with your WordPress website
 */
@@ -192,7 +192,7 @@ function websitetoolbox_admin_options() {
 		}
 		#end of check post meta
 		
-		if(substr(get_option(websitetoolbox_url),0,7)=='http://') {
+		if(preg_match('#^https?://#', get_option(websitetoolbox_url))) {
 			$wtb_url = get_option(websitetoolbox_url);
 		} else {
 			$wtb_url = "http://".get_option(websitetoolbox_url);
@@ -203,8 +203,8 @@ function websitetoolbox_admin_options() {
 			$websitetoolboxpage_id = get_option('websitetoolbox_pageid');
 			$page = get_page($websitetoolboxpage_id);
 			$page->post_title = "Forum";
-			wp_update_post($page); 
-			$page->post_content = "<iframe src='".$wtb_url."' style='width: 100%; height:600px;'></iframe> ";
+			wp_update_post($page);
+			$page->post_content = '<script type="text/javascript" data-name="forumEmbedScript" id="embedded_forum" src="'.$wtb_url.'js/mb/embed.js"></script><noscript><a href="'.$wtb_url.'">Forum</a></noscript>';
 			wp_update_post($page);  
 			update_post_meta( $post_ID, '_wtbredirect_active', '' );
 		} else {
@@ -272,10 +272,10 @@ function websitetoolbox_admin_options() {
 	<p>Please <a href="http://www.websitetoolbox.com/contact?subject=WordPress+Plugin+Setup+Help" target="_blank">Contact Customer Support</a> if you need help getting setup.</p></OL>
 	<form name="form_lol" method="post" action="options-general.php?page=websitetoolboxoptions" style="margin: 15px 0">
 		<table width="100%" cellpadding="0" cellspacing="0">
-			<tr><td width="15%"><strong>Website Toolbox Username:</strong></td><td style="padding-top:10px;"><input type="text" name="websitetoolbox_username" id="websitetoolbox_username" value="$websitetoolbox_username" size="50"/></td><td style="padding-left:5px; padding-right:5px; padding-top:10px;" >If you do not have an account, then please <a href="http://www.websitetoolbox.com/tool/members/signup?tool=mb&name=Forum" target="_blank">create an account</a> to get your username. </td></tr>
+			<tr><td width="15%"><strong>Website Toolbox Username:</strong></td><td style="padding-top:10px;"><input type="text" name="websitetoolbox_username" id="websitetoolbox_username" value="$websitetoolbox_username" size="50"/></td><td style="padding-left:5px; padding-right:5px; padding-top:10px;" ><a href="http://www.websitetoolbox.com/message_board/forum.html?wordpress" target="_blank">Create a forum at Website Toolbox</a> to get your username. </td></tr>
 			<tr><td width="15%" style="padding-top:10px;"><strong>Forum API Key:</strong></td><td style="padding-top:10px;"><input type="text" name="websitetoolbox_api" id="websitetoolbox_api" value="$websitetoolbox_api" size="50"/></td><td style="padding-left:5px; padding-right:5px; padding-top:10px;">Get your <a href="http://www.websitetoolbox.com/support/252" target="_blank">API key</a>.</td></tr>
 			<tr><td width="15%" style="padding-top:10px;"><strong>Forum Address:</strong></td><td style="padding-top:10px;" ><input type="text" name="websitetoolbox_url" id="websitetoolbox_url" value="$websitetoolbox_url" size="50"/></td><td style="padding-left:5px; padding-right:5px; padding-top:10px;">You can get your Forum address by visiting the dashboard of your Website Toolbox account. </td></tr>
-			<tr><td width="15%" style="padding-top:10px;"><strong>Embed the forum:</strong></td><td style="padding-top:10px;" ><input type="checkbox" name="websitetoolbox_redirect" id="websitetoolbox_redirect" value="1" $check_if /></td><td style="padding-left:5px; padding-right:5px; padding-top:10px;">Enable this option to have your forum load within an iframe on your website. <br>Disable this option to have your forum load in a full-sized window. You can use the Layout section in your Website Toolbox account to <a href="http://www.websitetoolbox.com/support/148" target="_blank">customize your forum layout to match your website</a> or contact Website Toolbox support to customize it for you. </td></tr>
+			<tr><td width="15%" style="padding-top:10px;"><strong>Embed the forum:</strong></td><td style="padding-top:10px;" ><input type="checkbox" name="websitetoolbox_redirect" id="websitetoolbox_redirect" value="1" $check_if /></td><td style="padding-left:5px; padding-right:5px; padding-top:10px;">Enable this option to have your forum load within an iframe on your website. <br>Disable this option to have your forum load in a full-sized window. You can use the Layout section in your Website Toolbox account to <a href="http://www.websitetoolbox.com/support/148" target="_blank">customize your forum layout to match your website</a> or <a href="http://www.websitetoolbox.com/contact?subject=Customize+Forum+Layout" target="_blank">contact Website Toolbox support to customize it for you</a>. </td></tr>
 			<tr><td style="padding-top:10px;">&nbsp;</td><td style="padding-top:10px;"><input type="submit" name="submit" class="button-primary" value="Update" onClick="return ValidateForm();"/> </td></tr>
 		</table> 
 	</form>
@@ -328,16 +328,10 @@ function wt_login_user($user_login) {
 	$forum_username = get_option("websitetoolbox_username");
 	$forum_api		= get_option("websitetoolbox_api");
 	$forum_url		= get_option("websitetoolbox_url");
-	if(substr($forum_url,0,7)=='http://') {
-		$forum_url = $forum_url;
-	} else {
-		$forum_url = "http://".$forum_url;
-	}
-	$url_length = strlen($forum_url);
-	if(substr($forum_url,$url_length-1,$url_length)=='/') {
-		$forum_url = substr($forum_url,0,$url_length-1);
-	}
-	$HOST = str_replace('http://','',$forum_url);
+	
+	// Remove http:// or https:// from the from URL if exists.
+	$HOST = preg_replace('#^https?://#', '', $forum_url);
+	
 	$URL = "/register/setauthtoken?apikey=".$forum_api."&user=".$username;
 	$response = doHTTPCall($URL,$HOST);
 	#Parse XML response 
@@ -418,16 +412,9 @@ function wt_register_user($userid) {
 	$forum_username = get_option("websitetoolbox_username");
 	$forum_api		= get_option("websitetoolbox_api");
 	$forum_url		= get_option("websitetoolbox_url");
-	if(substr($forum_url,0,7)=='http://') {
-		$forum_url = $forum_url;
-	} else {
-		$forum_url = "http://".$forum_url;
-	}
-	$url_length = strlen($forum_url);
-	if(substr($forum_url,$url_length-1,$url_length)=='/') {
-		$forum_url = substr($forum_url,0,$url_length-1);
-	}
-	$HOST = str_replace('http://','',$forum_url);
+	
+	#remove http:// or https:// from the URL if exists.
+	$HOST = preg_replace('#^https?://#', '', $forum_url);
 	$login_id = $user_obj->ID;
 	$login 	  = $user_obj->user_login; # ie: JohnD223
 	$password = $user_obj->user_pass;
@@ -564,10 +551,10 @@ function clean_authtoken($type) {
 	}
 }
 
-/* Purpose: If a user logged-in on WordPress site from front end then get an authentication token and then print this authentication token into an image tag on footer section to logged-in on the related forum 
+/* Purpose: If a user Logged-in/logged-out on WordPress site from front end/admin section write an image tag after page load to loggout from forum.
 Parameter: None
 Return: None */
-function ssoLoginFront() {
+function ssoLoginLogout() {
 	if (isset($_SESSION['wtb_login_auth_token'])) {
 		$login_auth_url = get_option(websitetoolbox_url)."/register/dologin?authtoken=".$_SESSION['wtb_login_auth_token'];
 		if($_COOKIE['wt_login_remember']) {
@@ -577,36 +564,16 @@ function ssoLoginFront() {
 		echo "<img src='".$login_auth_url."' border='0' width='0' height='0' alt=''>";
 		/* remove authentication token from session variable so that above image tag not write again and again */
 		clean_authtoken('login');
+		return false;
 	}
-}	
-
-/* Purpose: If a user logged-in on WordPress site from admin section then get an authentication token and then print this authentication token into an image tag on footer section to logged-in on the related forum 
-Parameter: None
-Return: None */
-function ssoLoginAdmin() {
-    if (isset($_SESSION['wtb_login_auth_token'])) {
-		$login_auth_url = get_option(websitetoolbox_url)."/register/dologin?authtoken=".$_SESSION['wtb_login_auth_token'];
-		if($_COOKIE['wt_login_remember']) {
-			$login_auth_url = $login_auth_url."&remember=".$_COOKIE['wt_login_remember'];
-		}
-		/* Print image tag on the login landing success page to sent login request on the related forum */
-		echo "<img src='".$login_auth_url."' border='0' width='0' height='0' alt=''>";
-		/* remove authentication token from session variable so that above image tag not write again and again */
-		clean_authtoken('login');
-	}
-}
-
-/* Purpose: If a user logged-out on WordPress site from front end/admin section write an image tag after page load to loggout from forum.
-Parameter: None
-Return: None */
-function ssoLogout() {
 	if($_SESSION['wtb_logout_auth_token']) {
 		$logout_auth_url = get_option(websitetoolbox_url)."register/logout?authtoken=".$_SESSION['wtb_logout_auth_token'];
 		/* Print image tag on the header section sent logout request on the related forum */
 		echo "<img src='".$logout_auth_url."' border='0' width='0' height='0' alt=''>";
 		clean_authtoken('logout');
+		return false;
 	}
-}	
+}
 
 /* Define Hook to get user information */
 /* wp_login hook called when user logged-in into wordpress site (front end/back end) */
@@ -617,12 +584,9 @@ add_action('wp_logout','wt_logout_user');
 add_action('user_register', 'wt_register_user');
 /* admin_notices to print notice(message) on admin section */
 add_action('admin_notices', 'wtb_warning');
-/* wp_footer to print any message into footer (front end) */
-add_action('wp_footer', 'ssoLoginFront');
-/* admin_footer to print any message into footer (front admin) */
-add_action('admin_footer', 'ssoLoginAdmin');
-/* wp_loaded called after load page */
-add_action('wp_loaded','ssoLogout');
+/* print IMG tags to the footer if needed */
+add_action('wp_footer','ssoLoginLogout');
+add_action('admin_footer','ssoLoginLogout');
 
 register_activation_hook( __FILE__, 'websitetoolbox_activate' );
 register_deactivation_hook( __FILE__, 'websitetoolbox_deactivate' );
