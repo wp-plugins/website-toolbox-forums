@@ -584,8 +584,9 @@ add_action('wp_logout','wt_logout_user');
 add_action('user_register', 'wt_register_user');
 /* admin_notices to print notice(message) on admin section */
 add_action('admin_notices', 'wtb_warning');
-/* wp_loaded called after load page */
-add_action('wp_loaded','ssoLoginLogout');
+/* print IMG tags to the footer if needed */
+add_action('wp_footer','ssoLoginLogout');
+add_action('admin_footer','ssoLoginLogout');
 
 register_activation_hook( __FILE__, 'websitetoolbox_activate' );
 register_deactivation_hook( __FILE__, 'websitetoolbox_deactivate' );
