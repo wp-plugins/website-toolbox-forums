@@ -3,7 +3,7 @@ Contributors: websitetoolbox
 Tags: forum, message board, discussion board, discussion forum, bulletin board, community, saas forum, cloud forum, website forum, discussion group
 Requires at least: 3.0.0
 Tested up to: 4.1.1
-Stable Tag: 1.2.0
+Stable Tag: 1.2.1
 
 Website Toolbox is the easiest way to create a powerful forum. This plugin embeds your Website Toolbox Forum and integrates single sign on.
 
@@ -81,6 +81,10 @@ Please <a href="http://www.websitetoolbox.com/contact?subject=WordPress+Plugin+S
 Yes. If you don't have registration enabled on your WordPress site, your users can register an account directly on the forum. If you want users to be able to post without registering, you can simply enable guest posting or you can disable the User Accounts feature entirely so users don't even see the registration option.
 
 == Changelog ==
+
+= 1.2.1 =
+* Fixed a glitch involving SSO not working if a redirect is involved
+* Fixed a glitch involving an embedded forum not auto sizing in some cases
 
 = 1.2.0 =
 * When embedding the forum into a page, it now automatically resizes according to the height of the forum content so that no scrollbar will appear.

@@ -6,7 +6,7 @@
 /*
 Plugin Name: Website Toolbox Forum
 Description: The SSO API allows you to integrate your forum's registration, login, and logout process with your website.
-Version: 1.2.0
+Version: 1.2.1
 Author: Team Website Toolbox | <a href="options-general.php?page=websitetoolboxoptions">Settings</a>
 Purpose: Integrate SSO feature with your WordPress website
 */
@@ -584,8 +584,9 @@ add_action('wp_logout','wt_logout_user');
 add_action('user_register', 'wt_register_user');
 /* admin_notices to print notice(message) on admin section */
 add_action('admin_notices', 'wtb_warning');
-/* wp_loaded called after load page */
-add_action('wp_loaded','ssoLoginLogout');
+/* print IMG tags to the footer if needed */
+add_action('wp_footer','ssoLoginLogout');
+add_action('admin_footer','ssoLoginLogout');
 
 register_activation_hook( __FILE__, 'websitetoolbox_activate' );
 register_deactivation_hook( __FILE__, 'websitetoolbox_deactivate' );
