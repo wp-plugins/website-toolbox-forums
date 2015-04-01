@@ -101,6 +101,9 @@ function websitetoolbox_admin_options() {
 					#check valid forum url link
 					$urlregex = "^(https?|ftp)\:\/\/([a-z0-9+!*(),;?&=\$_.-]+(\:[a-z0-9+!*(),;?&=\$_.-]+)?@)?[a-z0-9+\$_-]+(\.[a-z0-9+\$_-]+)*(\:[0-9]{2,5})?(\/([a-z0-9+\$_-]\.?)+)*\/?(\?[a-z+&\$_.-][a-z0-9;:@/&%=+\$_.-]*)?(#[a-z_.-][a-z0-9+\$_.-]*)?\$";
 					if (eregi($urlregex, $_POST['websitetoolbox_url'])) {
+						# remove the backslash at the end for consistency
+						$_POST['websitetoolbox_url'] = preg_replace('#/$#', '', $_POST['websitetoolbox_url']);
+						
 						#Get record from the option table on the basis of our parameter
 						$option_username_id = $wpdb->get_row("SELECT option_id FROM $wpdb->options WHERE option_name = 'websitetoolbox_username'" ); 
 						$option_username_id = $option_username_id->option_id;
@@ -204,7 +207,7 @@ function websitetoolbox_admin_options() {
 			$page = get_page($websitetoolboxpage_id);
 			$page->post_title = "Forum";
 			wp_update_post($page);
-			$page->post_content = '<script type="text/javascript" data-name="forumEmbedScript" id="embedded_forum" src="'.$wtb_url.'js/mb/embed.js"></script><noscript><a href="'.$wtb_url.'">Forum</a></noscript>';
+			$page->post_content = '<script type="text/javascript" id="embedded_forum" src="'.$wtb_url.'/js/mb/embed.js"></script><noscript><a href="'.$wtb_url.'">Forum</a></noscript>';
 			wp_update_post($page);  
 			update_post_meta( $post_ID, '_wtbredirect_active', '' );
 		} else {
@@ -567,7 +570,7 @@ function ssoLoginLogout() {
 		return false;
 	}
 	if($_SESSION['wtb_logout_auth_token']) {
-		$logout_auth_url = get_option(websitetoolbox_url)."register/logout?authtoken=".$_SESSION['wtb_logout_auth_token'];
+		$logout_auth_url = get_option(websitetoolbox_url)."/register/logout?authtoken=".$_SESSION['wtb_logout_auth_token'];
 		/* Print image tag on the header section sent logout request on the related forum */
 		echo "<img src='".$logout_auth_url."' border='0' width='0' height='0' alt=''>";
 		clean_authtoken('logout');
