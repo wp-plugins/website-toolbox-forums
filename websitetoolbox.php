@@ -6,7 +6,7 @@
 /*
 Plugin Name: Website Toolbox Forum
 Description: The SSO API allows you to integrate your forum's registration, login, and logout process with your website.
-Version: 1.2.1
+Version: 1.2.2
 Author: Team Website Toolbox | <a href="options-general.php?page=websitetoolboxoptions">Settings</a>
 Purpose: Integrate SSO feature with your WordPress website
 */
@@ -357,18 +357,12 @@ function wt_login_user($user_login) {
 		if(!empty($_POST['rememberme'])) {
 			setcookie('wt_login_remember', "checked", 0);
 		}		
-		setcookie("wt_logout_token", $resultdata, 0);
+		// Save authentication token into cookie for one day to use into SSO logout.
+		setcookie('wt_logout_token', $resultdata, time() + 86400);
 		#Save authentication token into session variable.
-		save_authtoken('login',$resultdata);
+		save_authtoken($resultdata);
 		return true;
 	}	
-}
-
-#logged-out a new user on the related forum
-function wt_logout_user() {
-	/* create a cookie variable if user successfully logged-out from WordPress site to sent logged-out request on the related websitetoolbox forum */
-	save_authtoken('logout',$_COOKIE['wt_logout_token']);
-	return false;
 }
 
 #delete user if username exist on the forum 
@@ -530,16 +524,11 @@ function get_main_array(){
 	return $theArray;
 }
 
-/* Purpose: This function is used to set authentication token into session variable if user logged-in/logged-out.
-Param1: type (login/logout)
-Param2: authentication token
+/* Purpose: This function is used to set authentication token into session variable if user logged-in.
+Param: authentication token
 Return: Nothing */
-function save_authtoken($type, $authtoken) {
-	if($type=='login') {
-		$_SESSION['wtb_login_auth_token'] = $authtoken;
-	} else if($type=='logout') {
-		$_SESSION['wtb_logout_auth_token'] = $authtoken;
-	}
+function save_authtoken($authtoken) {
+	$_SESSION['wtb_login_auth_token'] = $authtoken;
 }
 
 /* Purpose: This function is used to unset session variable if user logged-in/logged-out.
@@ -549,7 +538,6 @@ function clean_authtoken($type) {
 	if($type=='login') {
 		unset($_SESSION['wtb_login_auth_token']);	
 	} else if($type=='logout')	{
-		unset($_SESSION['wtb_logout_auth_token']);
 		setcookie("wt_logout_token", '', 0);
 	}
 }
@@ -564,15 +552,15 @@ function ssoLoginLogout() {
 			$login_auth_url = $login_auth_url."&remember=".$_COOKIE['wt_login_remember'];
 		}
 		/* Print image tag on the login landing success page to sent login request on the related forum */
-		echo "<img src='".$login_auth_url."' border='0' width='0' height='0' alt=''>";
+		echo '<img src="'.$login_auth_url.'" border="0" width="0" height="0" alt="">';
 		/* remove authentication token from session variable so that above image tag not write again and again */
 		clean_authtoken('login');
 		return false;
 	}
-	if($_SESSION['wtb_logout_auth_token']) {
-		$logout_auth_url = get_option(websitetoolbox_url)."/register/logout?authtoken=".$_SESSION['wtb_logout_auth_token'];
+	if(!is_user_logged_in() && $_COOKIE['wt_logout_token']) {
+		$logout_auth_url = get_option(websitetoolbox_url)."/register/logout?authtoken=".$_COOKIE['wt_logout_token'];
 		/* Print image tag on the header section sent logout request on the related forum */
-		echo "<img src='".$logout_auth_url."' border='0' width='0' height='0' alt=''>";
+		echo '<img src="'.$logout_auth_url.'" border="0" width="0" height="0" alt="">';
 		clean_authtoken('logout');
 		return false;
 	}
@@ -581,8 +569,6 @@ function ssoLoginLogout() {
 /* Define Hook to get user information */
 /* wp_login hook called when user logged-in into wordpress site (front end/back end) */
 add_action('wp_login','wt_login_user');
-/* wp_logout hook called when user logged-out from wordpress site (front end/back end) */
-add_action('wp_logout','wt_logout_user');
 /* user_register hook called when a new account creates from from wordpress site (front end/back end) */
 add_action('user_register', 'wt_register_user');
 /* admin_notices to print notice(message) on admin section */
