@@ -1,14 +1,14 @@
 <?php
 /**
  * @package Website Toolbox Forum
- * @author Team Website Toolbox
+ * @author Website Toolbox
  */
 /*
 Plugin Name: Website Toolbox Forum
-Description: The SSO API allows you to integrate your forum's registration, login, and logout process with your website.
+Description: Integrates single sign on and embeds your forum into your WordPress website.
 Version: 1.2.2
 Author: Team Website Toolbox | <a href="options-general.php?page=websitetoolboxoptions">Settings</a>
-Purpose: Integrate SSO feature with your WordPress website
+Purpose: Integrates your forum with your WordPress website
 */
 
 ob_start();
@@ -321,47 +321,44 @@ function websitetoolbox_deactivate() {
 
 #logged-in a new user on the related forum
 function wt_login_user($user_login) {
-	require("websitetoolbox_sso.php");
 	$user_obj = new WP_User(0,$user_login);
 	$username = urlencode($user_obj->user_login);
-	$display_name = urlencode($user_obj->display_name); # ie: John Doe
-	$first_name = urlencode($user_obj->first_name); # ie: John
-	$last_name = urlencode($user_obj->last_name); # ie: Doe
 	
-	$forum_username = get_option("websitetoolbox_username");
 	$forum_api		= get_option("websitetoolbox_api");
 	$forum_url		= get_option("websitetoolbox_url");
 	
-	// Remove http:// or https:// from the from URL if exists.
-	$HOST = preg_replace('#^https?://#', '', $forum_url);
+	// create URL to get authentication token.
+	$URL = $forum_url."/register/setauthtoken";
+	$fields = array('apikey' => $forum_api, 'user' => $username);
+	// Send http or https request to get authentication token.
+	$response_array = wp_remote_post($URL, array('method' => 'POST', 'body' => $fields));
 	
-	$URL = "/register/setauthtoken?apikey=".$forum_api."&user=".$username;
-	$response = doHTTPCall($URL,$HOST);
-	#Parse XML response 
-	function filter_xml($matches) {
-		return trim(htmlspecialchars($matches[1]));
-	} 
-	$response_xml = preg_replace_callback('/<!\[CDATA\[(.*)\]\]>/', 'filter_xml', $response);
-	$response_xml = simplexml_load_string($response_xml);
-	
-	if(htmlentities($response_xml->error) != "" && $username != 'admin') {
-		#return an error message 
-		wp_die(htmlentities($response_xml->error));
-	} else {
-		if(htmlentities($response_xml->authtoken)) {
-			$resultdata = htmlentities($response_xml->authtoken);
+	//Check if http/https request could not return any error then filter XML from response 
+	if(!is_wp_error( $response_array )) {
+		$response = trim(wp_remote_retrieve_body($response_array));
+		// Get authentication token from XML response.
+		$response_xml = preg_replace_callback('/<!\[CDATA\[(.*)\]\]>/', 'filter_xml', $response);
+		$response_xml = simplexml_load_string($response_xml);
+		
+		if(htmlentities($response_xml->error) != "" && $username != 'admin') {
+			#return an error message 
+			wp_die(htmlentities($response_xml->error));
 		} else {
-			$resultdata = '';
-		}
-		#set cookie for 10 days if user logged-in with "remember me" option, to remain logged-in after closing browser. Otherwise set cookie 0 to logged-out after clossing browser. 
-		if(!empty($_POST['rememberme'])) {
-			setcookie('wt_login_remember', "checked", 0);
-		}		
-		// Save authentication token into cookie for one day to use into SSO logout.
-		setcookie('wt_logout_token', $resultdata, time() + 86400);
-		#Save authentication token into session variable.
-		save_authtoken($resultdata);
-		return true;
+			if(htmlentities($response_xml->authtoken)) {
+				$resultdata = htmlentities($response_xml->authtoken);
+			} else {
+				$resultdata = '';
+			}
+			#set cookie for 10 days if user logged-in with "remember me" option, to remain logged-in after closing browser. Otherwise set cookie 0 to logged-out after clossing browser. 
+			if(!empty($_POST['rememberme'])) {
+				setcookie('wt_login_remember', "checked", 0);
+			}
+			// Save authentication token into cookie for one day to use into SSO logout.
+			setcookie('wt_logout_token', $resultdata, time() + 86400);
+			#Save authentication token into session variable.
+			save_authtoken($resultdata);
+			return true;
+		}	
 	}	
 }
 
@@ -404,14 +401,11 @@ function wp_delete_user_current( $id, $reassign = 'novalue' ) {
 
 #create an account on the related forum
 function wt_register_user($userid) {
-	require("websitetoolbox_sso.php");
+
 	$user_obj = new WP_User($userid);
-	$forum_username = get_option("websitetoolbox_username");
 	$forum_api		= get_option("websitetoolbox_api");
 	$forum_url		= get_option("websitetoolbox_url");
 	
-	#remove http:// or https:// from the URL if exists.
-	$HOST = preg_replace('#^https?://#', '', $forum_url);
 	$login_id = $user_obj->ID;
 	$login 	  = $user_obj->user_login; # ie: JohnD223
 	$password = $user_obj->user_pass;
@@ -419,34 +413,38 @@ function wt_register_user($userid) {
 	$display_name = $user_obj->display_name; # ie: John Doe
 	$first_name = $user_obj->first_name; # ie: John
 	$last_name = $user_obj->last_name; # ie: Doe
+	$fullname = $first_name." ".$last_name;
 	
-	$parameters = "&member=".urlencode($login); # this is the username displayed on the forum
-	$parameters .= "&apikey=".$forum_api;
-	$parameters .= "&pw=".urlencode($password);
-	$parameters .= "&email=".urlencode($email);
-	$URL = "/register/create_account?".$parameters;
-	$response = doHTTPCall($URL,$HOST);
+	// URL to create a new account on forum.
+	$URL = $forum_url."/register/create_account";
+	// Fields array.
+	$fields = array('apikey' => $forum_api, 'member' => $login, 'pw' => $password, 'email' => $email, 'name' => $fullname);
+	// Sent https/https request on related forum to create an account on the related forum.
+	$response_array = wp_remote_post($URL, array('method' => 'POST', 'body' => $fields));
 	
-	function filter_xml($matches) {
-		return trim(htmlspecialchars($matches[1]));
-	} 
-	$response_xml = preg_replace_callback('/<!\[CDATA\[(.*)\]\]>/', 'filter_xml', $response);
-	$response_xml = simplexml_load_string($response_xml);
-	$response = trim(htmlentities($response_xml->error));
-	$full_length = strlen($response);
-	#Remove HTML tag with content from the message, return from forum if email of user already exist.
-	if(strpos($response,'&lt;')) {
-		$bad_string = strpos($response,'&lt;');
-		$response = substr($response, 0, $bad_string-1);
-	}
-	$SUCCESS_STRING = "Registration Complete";
-	$USER_EMAIL_EXIST_STRING = "Error: It looks like you already have a forum account! A forum account for that username and email address combination already exists!";
-	if($response == $SUCCESS_STRING || $response == $USER_EMAIL_EXIST_STRING) {
-		return true;
-	} else {
-		wp_delete_user_current($login_id);
-		wp_die($response);	
-	}
+	//Check if http/https request could not return any error then filter XML from response
+	if(!is_wp_error( $response_array )) {
+		$response = trim(wp_remote_retrieve_body($response_array));
+		// Filter XML response to get message.
+		$response_xml = preg_replace_callback('/<!\[CDATA\[(.*)\]\]>/', 'filter_xml', $response);
+		$response_xml = simplexml_load_string($response_xml);
+		$response = trim(htmlentities($response_xml->error));
+		$full_length = strlen($response);
+		
+		#Remove HTML tag with content from the message, return from forum if email of user already exist.
+		if(strpos($response,'&lt;')) {
+			$bad_string = strpos($response,'&lt;');
+			$response = substr($response, 0, $bad_string-1);
+		}
+		$SUCCESS_STRING = "Registration Complete";
+		$USER_EMAIL_EXIST_STRING = "Error: It looks like you already have a forum account! A forum account for that username and email address combination already exists!";
+		if($response == $SUCCESS_STRING || $response == $USER_EMAIL_EXIST_STRING) {
+			return true;
+		} else {
+			wp_delete_user_current($login_id);
+			wp_die($response);	
+		}
+	}	
 }
 
 /* Show to admin after activate the SSO plugin while SSO will not be configured.*/
@@ -482,16 +480,22 @@ if(get_option("websitetoolbox_redirect") == '') {
 		if(array_key_exists($id, $newCheck)) {
 			$matchedID = $newCheck[$id];
 			$newURL = $matchedID['_links_to'];
-			if(strpos($newURL,get_option('home'))>=0 || strpos($newURL,'www.')>=0 || strpos($newURL,'http://')>=0 || strpos($newURL,'https://')>=0) {			
-				$link = trim($matchedID['_links_to']);
+			if(strpos($newURL,get_option('home'))>=0 || strpos($newURL,'www.')>=0 || strpos($newURL,'http://')>=0 || strpos($newURL,'https://')>=0) {
 				if($matchedID['_links_to_target'] == 'websitetoolbox') {
-					$newURL =  trim($matchedID['_links_to']);
+					$newURL = trim($matchedID['_links_to']);
+					// Added / at the end of forum url if open into parent window.
+					if(!preg_match("/\/$/", $newURL)) {
+						$link = $newURL."/";
+					}
 				} else {
-					$newURL = esc_url( $newURL );
+					$link = esc_url( $newURL );
 				}
 			} else {
 				if($matchedID['_links_to_target'] == 'websitetoolbox') {
-					$link = esc_url( $newURL );
+					// Added / at the end of forum url if open into parent window.
+					if(!preg_match("/\/$/", $newURL)) {
+						$link = $newURL."/";
+					}
 				} else {
 					$link = esc_url( get_option( 'home').'/'. $newURL );
 				}
@@ -566,6 +570,11 @@ function ssoLoginLogout() {
 	}
 }
 
+#Parse XML response 
+function filter_xml($matches) {
+	return trim(htmlspecialchars($matches[1]));
+} 
+	
 /* Define Hook to get user information */
 /* wp_login hook called when user logged-in into wordpress site (front end/back end) */
 add_action('wp_login','wt_login_user');
@@ -576,6 +585,8 @@ add_action('admin_notices', 'wtb_warning');
 /* print IMG tags to the footer if needed */
 add_action('wp_footer','ssoLoginLogout');
 add_action('admin_footer','ssoLoginLogout');
+/* print IMG tags to the admin login page if user redirected to login page after logged-out. */
+add_action('login_footer', 'ssoLoginLogout');
 
 register_activation_hook( __FILE__, 'websitetoolbox_activate' );
 register_deactivation_hook( __FILE__, 'websitetoolbox_deactivate' );
