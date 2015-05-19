@@ -6,7 +6,7 @@
 /*
 Plugin Name: Website Toolbox Forum
 Description: Integrates single sign on and embeds your forum into your WordPress website.
-Version: 1.2.2
+Version: 1.2.3
 Author: Team Website Toolbox | <a href="options-general.php?page=websitetoolboxoptions">Settings</a>
 Purpose: Integrates your forum with your WordPress website
 */
@@ -229,13 +229,10 @@ function websitetoolbox_admin_options() {
 		global $wpdb;
 		if($_POST['websitetoolbox_username'] && $_POST['websitetoolbox_api'] && $_POST['websitetoolbox_url'] && validateForumURL($_POST['websitetoolbox_url'])) {
 			
-			#check authentication token from forum.
-			$forum_url = $_POST['websitetoolbox_url'];
-			
 			// create URL to check authentication token.
-			$URL = $forum_url."/register/checkauthtoken";
+			$URL = "http://www.websitetoolbox.com/tool/members/mb/settings";
 			// Append fileds email and password to create an account on the related forum if account not exist.
-			$fields = array('forumUsername' => $_POST['websitetoolbox_username'], 'forumApikey' => $_POST['websitetoolbox_api']);
+			$fields = array('action' => 'checkAPIKey','forumUsername' => $_POST['websitetoolbox_username'], 'forumApikey' => $_POST['websitetoolbox_api']);
 			
 			// Send http or https request to get authentication token.
 			$response_array = wp_remote_post($URL, array('method' => 'POST', 'body' => $fields));
