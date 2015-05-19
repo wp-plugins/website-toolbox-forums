@@ -1,6 +1,6 @@
 === Website Toolbox Forums ===
 Contributors: websitetoolbox
-Tags: forum, message board, discussion board, discussion forum, bulletin board, community, saas forum, cloud forum, website forum, discussion group
+Tags: forum, message board, discussion board, discussion forum, bulletin board, community, saas forum, cloud forum, website forum, discussion group, online forum
 Requires at least: 3.0.0
 Tested up to: 4.2.2
 Stable Tag: 1.2.3
