@@ -1,8 +1,8 @@
 === Website Toolbox Forums ===
 Contributors: websitetoolbox
-Tags: forum, message board, discussion board, discussion forum, bulletin board, community, saas forum, cloud forum, website forum, discussion group
+Tags: forum, message board, discussion board, discussion forum, bulletin board, community, saas forum, cloud forum, website forum, discussion group, online forum
 Requires at least: 3.0.0
-Tested up to: 4.2.2
+Tested up to: 4.2.3
 Stable Tag: 1.2.3
 
 Website Toolbox is the easiest way to create a powerful forum. This plugin embeds your Website Toolbox Forum and integrates single sign on.
