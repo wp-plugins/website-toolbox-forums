@@ -2,7 +2,7 @@
 Contributors: websitetoolbox
 Tags: forum, message board, discussion board, discussion forum, bulletin board, community, saas forum, cloud forum, website forum, discussion group, online forum
 Requires at least: 3.0.0
-Tested up to: 4.2.3
+Tested up to: 4.3
 Stable Tag: 1.2.3
 
 Website Toolbox is the easiest way to create a powerful forum. This plugin embeds your Website Toolbox Forum and integrates single sign on.
@@ -15,7 +15,7 @@ Website Toolbox allows you to easily add a Forum to your website without any cod
 
 Ranked #1 forum provider by StarReviews!
 
- = The plugin has the following features: = 
+ = The plugin has the following features: =
 
 * Login Integration: Automatically logs the user into your forum when they login to your WordPress website.
 
@@ -24,7 +24,7 @@ Ranked #1 forum provider by StarReviews!
 * Embedded forum: The forum is automatically embedded into the layout of your WordPress website.
 
 
-= Key forum benefits: = 
+= Key forum benefits: =
 
 * Instant Setup
 * Phone/Chat/Email Support
@@ -34,7 +34,7 @@ Ranked #1 forum provider by StarReviews!
 * White Label
 
 
- = Key forum features: = 
+ = Key forum features: =
 
 * Make money using ads or subscription fees
 * Facebook Integration
@@ -82,6 +82,10 @@ Yes. If you don't have registration enabled on your WordPress site, your users c
 
 == Changelog ==
 
+= 1.2.4 =
+* Fixed a glitch which restarted already active sessions.
+* Embed and SSO URLs are now automatically synchronized.
+
 = 1.2.3 =
 * If a user logs in on WordPress and that user doesn't exist on the forum, we now auto-create the account on the forum.
 * Now using the WordPress API functions to show the forum's settings page.
@@ -102,6 +106,3 @@ Yes. If you don't have registration enabled on your WordPress site, your users c
 = 1.1.0 =
 * Removed redirection to profile.php upon login.
 * Removed the need to write IMG tags in wordpress files to avoid read/write permissions.
-
-
-

@@ -6,13 +6,17 @@
 /*
 Plugin Name: Website Toolbox Forum
 Description: Integrates single sign on and embeds your forum into your WordPress website.
-Version: 1.2.3
+Version: 1.2.4
 Author: Team Website Toolbox | <a href="options-general.php?page=websitetoolboxoptions">Settings</a>
 Purpose: Integrates your forum with your WordPress website
 */
 set_time_limit(0);
 ob_start();
-session_start();
+
+// start new session if not started from another files.
+if(!isset($_SESSION)) {
+  session_start();
+}
 
 /* Purpose: insert forum title, default page content, plug-in status, in the option table.
 Parameter: None
@@ -37,12 +41,11 @@ function create_websitetoolbox_page() {
 /* Purpose: Set page content on the front end according to the basic theme.
 Parameter: None
 Return: None */
-function websitetoolbox_lol($content) {    
+function websitetoolbox_lol($content) {
 	$websitetoolboxpage_id = get_option('websitetoolbox_pageid');
-	$page_content = get_page($websitetoolboxpage_id); 
+	$page_content = get_page($websitetoolboxpage_id);
 	$page_content = $page_content->post_content;
-	$theme_name = get_current_theme();
-	$theme_data = get_theme($theme_name);
+	$theme_data = wp_get_theme();
 	$wrap_pre = "<style>.nocomments { display: block; }</style>";
 	$wrap_post = "";
 	if($theme_data['Name']=="WordPress Default" && strpos($theme_data['Description'], '>Kubrick<')==90) {
@@ -53,20 +56,20 @@ function websitetoolbox_lol($content) {
 		$wrap_pre .= <<<STYLE
 		<style type="text/css">
 		.singular .entry-header, .singular .entry-content, .singular footer.entry-meta, .singular #comments-title {
-		width: 100%; 
-		}                
+		width: 100%;
+		}
 		.singular #content, .left-sidebar.singular #content {
 		margin: 0 1.5%;
 		}
 		.page-id-$websitetoolboxpage_id  .entry-title {display: none;}
-		
+
 		#main { padding: 0; }
 		.singular.page .hentry { padding: 0; }
 		</style>
 STYLE;
 	}
 	return <<<EMBED
-	$wrap_pre    
+	$wrap_pre
 	$page_content
 	$wrap_post
 EMBED;
@@ -75,10 +78,10 @@ EMBED;
 /* Purpose: create a new page for front end.
 Parameter: None
 Return: None */
-function websitetoolbox_init() {    
+function websitetoolbox_init() {
 	$websitetoolboxpage_id = get_option('websitetoolbox_pageid');
-	if(is_page($websitetoolboxpage_id)) {        
-		$page = get_page($websitetoolboxpage_id);        
+	if(is_page($websitetoolboxpage_id)) {
+		$page = get_page($websitetoolboxpage_id);
 		if($page && $page->post_status!='publish') {
 			$page->post_status = 'publish';
 			wp_update_post($page);
@@ -98,7 +101,7 @@ function websitetoolbox_add_admin_menu() {
 Parameter: None
 Return: None */
 function websitetoolbox_admin_init() {
-	
+
 	// To show settings description on Websitetoolbox settings page on WordPress admin panel.
     add_settings_section(
         'websitetoolbox_settings_section',
@@ -106,47 +109,37 @@ function websitetoolbox_admin_init() {
         'websitetoolbox_settings_desc',
         'websitetoolboxoptions'
     );
-     
+
     // To show forum username option on forum settings page on WordPress admin panel.
     add_settings_field(
         'websitetoolbox_username',
         'Website Toolbox Username:',
         'websitetoolbox_username_option',
         'websitetoolboxoptions',
-        'websitetoolbox_settings_section' 
+        'websitetoolbox_settings_section'
     );
-	
+
 	// To show forum API option on forum settings page on WordPress admin panel.
 	add_settings_field(
         'websitetoolbox_api',
         'Forum API Key:',
         'websitetoolbox_api_option',
         'websitetoolboxoptions',
-        'websitetoolbox_settings_section' 
+        'websitetoolbox_settings_section'
     );
-	
-	// To show forum Address option on forum settings page on WordPress admin panel.
-	add_settings_field(
-        'websitetoolbox_url',
-        'Forum Address:',
-        'websitetoolbox_address_option',
-        'websitetoolboxoptions',
-        'websitetoolbox_settings_section' 
-    );
-	
+
 	// To show forum embed option on forum settings page on WordPress admin panel.
 	add_settings_field(
         'websitetoolbox_redirect',
         'Embed the forum:',
         'websitetoolbox_embed_option',
         'websitetoolboxoptions',
-        'websitetoolbox_settings_section' 
+        'websitetoolbox_settings_section'
     );
-	
-	
-	register_setting( 'websitetoolboxoptions', 'websitetoolbox_username' );	
+
+
+	register_setting( 'websitetoolboxoptions', 'websitetoolbox_username' );
 	register_setting( 'websitetoolboxoptions', 'websitetoolbox_api' );
-	register_setting( 'websitetoolboxoptions', 'websitetoolbox_url' );
 	register_setting( 'websitetoolboxoptions', 'websitetoolbox_redirect' );
 }
 
@@ -156,9 +149,8 @@ Return: None */
 function websitetoolbox_settings_desc() {
 	echo '<OL><LI><a href="http://www.websitetoolbox.com/message_board/forum.html?wordpress" target="_blank">Create a forum on Website Toolbox</a> or <a href="http://www.websitetoolbox.com/tool/members/login" target="_blank">login to your existing Website Toolbox forum</a>.</LI>
 	<LI>Click the <i>Settings</i> link in the navigation menu at the top. In the Settings menu, select the <i>Single Sign On</i> option.</LI>
-	<LI>On the Single Sign On settings page, specify the Login, Logout, and Registration page address (URL) of your WordPress website and <i>Save</i> your changes. If your WordPress website doesn'."'".'t have these pages, skip this step.</LI>
 	<LI>Copy the <i>API Key</i> from the Single Sign On settings page and paste it into the <i>Forum API Key</i> text box on this WordPress plugin setup page.</LI>
-	<LI>Provide your <i>Website Toolbox Username</i> and <i>Forum Address</i>  in the text boxes below and click the <i>Update</i> button.</LI>
+	<LI>Provide your <i>Website Toolbox Username</i> in the text box below and click the <i>Update</i> button.</LI>
 	<p>Please <a href="http://www.websitetoolbox.com/contact?subject=WordPress+Plugin+Setup+Help" target="_blank">Contact Customer Support</a> if you need help getting setup.</p></OL>';
 }
 
@@ -166,8 +158,8 @@ function websitetoolbox_settings_desc() {
 Parameter: None
 Return: None */
 function websitetoolbox_username_option($args) {
-	$websitetoolbox_username = $_POST['websitetoolbox_username'] ? $_POST['websitetoolbox_username'] : get_option('websitetoolbox_username');
-	
+	$websitetoolbox_username = isset($_POST['websitetoolbox_username']) ? $_POST['websitetoolbox_username'] : get_option('websitetoolbox_username');
+
 	$html = '<input type="text" name="websitetoolbox_username" id="websitetoolbox_username" value="'.$websitetoolbox_username.'" size="50"/>';
 
 	$html .= '<label for="websitetoolbox_username"> <a href="http://www.websitetoolbox.com/message_board/forum.html?wordpress" target="_blank">Create a forum at Website Toolbox</a> to get your username.</label>';
@@ -179,124 +171,121 @@ function websitetoolbox_username_option($args) {
 Parameter: None
 Return: None */
 function websitetoolbox_api_option($args) {
-	$websitetoolbox_api = $_POST['websitetoolbox_api'] ? $_POST['websitetoolbox_api'] : get_option('websitetoolbox_api');
-	
+	$websitetoolbox_api = isset($_POST['websitetoolbox_api']) ? $_POST['websitetoolbox_api'] : get_option('websitetoolbox_api');
+
 	$html = '<input type="text" name="websitetoolbox_api" id="websitetoolbox_api" value="'.$websitetoolbox_api.'" size="50"/>';
 
-	$html .= '<label for="websitetoolbox_api"> Get your <a href="http://www.websitetoolbox.com/support/252" target="_blank">API key</a>.</label>';
+	$html .= '<label for="websitetoolbox_api"> Get your <a href="http://www.websitetoolbox.com/support/252" target="_blank">API key</a>.</label><br>';
 
-	echo $html; 
-}
-
-/* Purpose: Add Forum Address option on forum settings page into WordPress Forum settings page.
-Parameter: None
-Return: None */
-function websitetoolbox_address_option($args) {
-	$websitetoolbox_url = $_POST['websitetoolbox_url'] ? $_POST['websitetoolbox_url'] : get_option('websitetoolbox_url');
-
-	$html = '<input type="text" name="websitetoolbox_url" id="websitetoolbox_url" value="'.$websitetoolbox_url.'" size="50"/>';
-
-	$html .= '<label for="websitetoolbox_url"> You can get your Forum address by visiting the dashboard of your Website Toolbox account.</label>';
-
-	echo $html; 
+	echo $html;
 }
 
 /* Purpose: Add embed option on Forum settings page into WordPress Forum settings page.
 Parameter: None
 Return: None */
 function websitetoolbox_embed_option($args) {
+
+	// enable Embed option when user install the plugin.
+	if(!get_option('websitetoolbox_username')) {
+		$checked = 1;
+	} else {
+		$checked = get_option('websitetoolbox_redirect');
+	}
 	
-	$html = '<input type="checkbox" name="websitetoolbox_redirect" id="websitetoolbox_redirect" value="1" ' . checked(1, get_option('websitetoolbox_redirect'), false) . '/>';
-		
+	$html = '<input type="checkbox" name="websitetoolbox_redirect" id="websitetoolbox_redirect" value="1" ' . checked(1, $checked, false) . '/>';
+
 	$html .= '<label for="websitetoolbox_redirect"> Enable this option to have your forum load within an iframe on your website. <br>Disable this option to have your forum load in a full-sized window. You can use the Layout section in your Website Toolbox account to <a href="http://www.websitetoolbox.com/support/148" target="_blank">customize your forum layout to match your website</a> or <a href="http://www.websitetoolbox.com/contact?subject=Customize+Forum+Layout" target="_blank">contact Website Toolbox support to customize it for you</a>.</label>';
 
 	echo $html;
 }
 
-
-function validateForumURL($forumURL) {
-	$urlregex = "^(https?|ftp)\:\/\/([a-z0-9+!*(),;?&=\$_.-]+(\:[a-z0-9+!*(),;?&=\$_.-]+)?@)?[a-z0-9+\$_-]+(\.[a-z0-9+\$_-]+)*(\:[0-9]{2,5})?(\/([a-z0-9+\$_-]\.?)+)*\/?(\?[a-z+&\$_.-][a-z0-9;:@/&%=+\$_.-]*)?(#[a-z_.-][a-z0-9+\$_.-]*)?\$";
-	if(eregi($urlregex, $forumURL)) {
-		return true;	
-	} else {
-		return false;
-	}
-}
-
 #create forum settings page for admin panel
 function websitetoolbox_admin_options() {
-	if($_POST) { 
+	if($_POST) {
 		global $wpdb;
-		if($_POST['websitetoolbox_username'] && $_POST['websitetoolbox_api'] && $_POST['websitetoolbox_url'] && validateForumURL($_POST['websitetoolbox_url'])) {
-			
+		if($_POST['websitetoolbox_username'] && $_POST['websitetoolbox_api']) {
 			// create URL to check authentication token.
 			$URL = "http://www.websitetoolbox.com/tool/members/mb/settings";
+
+			// WordPress site login, logout and registration URL.
+			$websitetoolbox_login_url = wp_login_url();
+			$websitetoolbox_logout_url = add_query_arg( array('action' => 'logout'), wp_login_url() );
+			$websitetoolbox_register_url = wp_registration_url();
+
+			// Get embed page URL
+			if($_POST['websitetoolbox_redirect']) {
+				$wtb_pageid = get_option('websitetoolbox_pageid');
+				$embed_page = get_page($wtb_pageid);
+				$embed_page->post_title = "Forum";
+				$embed_page_url = $embed_page->guid;
+			}
+
 			// Append fileds email and password to create an account on the related forum if account not exist.
-			$fields = array('action' => 'checkAPIKey','forumUsername' => $_POST['websitetoolbox_username'], 'forumApikey' => $_POST['websitetoolbox_api']);
-			
+			$fields = array('action' => 'checkAPIKey','forumUsername' => $_POST['websitetoolbox_username'], 'forumApikey' => $_POST['websitetoolbox_api'], 'login_page_url' => $websitetoolbox_login_url, 'logout_page_url' => $websitetoolbox_logout_url, 'registration_url' => $websitetoolbox_register_url, 'embed_page_url' => $embed_page_url);
+
 			// Send http or https request to get authentication token.
 			$response_array = wp_remote_post($URL, array('method' => 'POST', 'body' => $fields));
-			
-			//Check if http/https request could not return any error then filter XML from response 
+
+			//Check if http/https request could not return any error then filter JSON from response
 			if(!is_wp_error( $response_array )) {
 				$response = trim(wp_remote_retrieve_body($response_array));
-				// Get authentication token from XML response.
-				$response_xml = preg_replace_callback('/<!\[CDATA\[(.*)\]\]>/', 'filter_xml', $response);
-				$response_xml = simplexml_load_string($response_xml);
-				
-				if(htmlentities($response_xml->error)) {
-					#return an error message 
-					echo "<div id='setting-error-settings_updated' class='updated error'><p>".$response_xml->error."</p></div>";
+				$response = json_decode($response);
+				// Get authentication token from JSON response.
+				if($response->{'error'}) {
+					#return an error message
+					echo "<div id='setting-error-settings_updated' class='updated error'><p>".$response->{'error'}."</p></div>";
 					wtbForumSettingsPage();
 					return false;
-				}	
-			}	
-			
+				} else {
+					$forum_address = $response->{'forumaddress'};
+				}
+			}
+
 			# remove the backslash at the end for consistency
-			$_POST['websitetoolbox_url'] = preg_replace('#/$#', '', $_POST['websitetoolbox_url']);
+			$forum_address = preg_replace('#/$#', '', $forum_address);
 			if(get_option("websitetoolbox_username")) {
 				#update Website Toolbox forum user name in option table if exist
 				update_option('websitetoolbox_username', $_POST['websitetoolbox_username']);
 			} else {
 				#insert Website Toolbox forum user name in option table
-				add_option('websitetoolbox_username', $_POST['websitetoolbox_username']);      
-			} 
+				add_option('websitetoolbox_username', $_POST['websitetoolbox_username']);
+			}
 			if(get_option("websitetoolbox_api")) {
 				#update Website Toolbox forum API in option table if exist
-				update_option('websitetoolbox_api', $_POST['websitetoolbox_api']); 
+				update_option('websitetoolbox_api', $_POST['websitetoolbox_api']);
 			} else {
 				#insert Website Toolbox forum API name in option table
-				add_option('websitetoolbox_api', $_POST['websitetoolbox_api']);     
-			} 
+				add_option('websitetoolbox_api', $_POST['websitetoolbox_api']);
+			}
 			if(get_option("websitetoolbox_url")) {
 				#update Website Toolbox forum URL in option table if exist
-				update_option('websitetoolbox_url', $_POST['websitetoolbox_url']);
+				update_option('websitetoolbox_url', $forum_address);
 			} else {
 				#insert Website Toolbox forum URL name in option table
-				add_option('websitetoolbox_url', $_POST['websitetoolbox_url']);	
-			} 
+				add_option('websitetoolbox_url', $forum_address);
+			}
 			if(get_option("websitetoolbox_redirect")=="") {
 				#insert Website Toolbox forum redirect type (New window or in iframe) in option table
-				add_option('websitetoolbox_redirect', $_POST['websitetoolbox_redirect']); 
-			} 
+				add_option('websitetoolbox_redirect', $_POST['websitetoolbox_redirect']);
+			}
 			update_option('websitetoolbox_redirect', $_POST['websitetoolbox_redirect']);
-			
+
 			$websitetoolbox_url		 = get_option("websitetoolbox_url");
 			#Get Website Toolbox page id
 			$post_ID = $wpdb->get_results( "SELECT ID FROM " ."$wpdb->posts WHERE post_title='Forum'" );
 			foreach ($post_ID as $result) {
 				$post_ID = $result->ID;
 			}
-			
+
 			#check on post meta
 			$websitetoolboxpage_id = get_option('websitetoolbox_pageid');
-			$page = get_page($websitetoolboxpage_id);  
-			
-			
+			$page = get_page($websitetoolboxpage_id);
+
+
 			$row_post_link = get_post_meta( $websitetoolboxpage_id, '_links_to', true );
 			$row_post_target = get_post_meta( $websitetoolboxpage_id, '_links_to_target', true );
 			$row_post_type = get_post_meta( $websitetoolboxpage_id, '_links_to_type', true );
-			
+
 			if(get_post_meta( $websitetoolboxpage_id, '_links_to', true )){
 				update_post_meta( $post_ID, '_links_to', $websitetoolbox_url );
 			} else {
@@ -314,43 +303,39 @@ function websitetoolbox_admin_options() {
 				add_post_meta( $post_ID, '_wtbredirect_active', '1' );
 			}
 			#end of check post meta
-			
-			if(preg_match('#^https?://#', get_option(websitetoolbox_url))) {
-				$wtb_url = get_option(websitetoolbox_url);
+
+			if(preg_match('#^https?://#', get_option('websitetoolbox_url'))) {
+				$wtb_url = get_option('websitetoolbox_url');
 			} else {
-				$wtb_url = "http://".get_option(websitetoolbox_url);
+				$wtb_url = "http://".get_option('websitetoolbox_url');
 			}
-			
-			if(get_option("websitetoolbox_redirect") == 1) { 
+
+			if(get_option("websitetoolbox_redirect") == 1) {
 				#open forum in iframe
 				$websitetoolboxpage_id = get_option('websitetoolbox_pageid');
 				$page = get_page($websitetoolboxpage_id);
 				$page->post_title = "Forum";
 				wp_update_post($page);
 				$page->post_content = '<script type="text/javascript" id="embedded_forum" src="'.$wtb_url.'/js/mb/embed.js"></script><noscript><a href="'.$wtb_url.'">Forum</a></noscript>';
-				wp_update_post($page);  
+				wp_update_post($page);
 				update_post_meta( $post_ID, '_wtbredirect_active', '' );
 			} else {
 				#open forum in new window
 				$websitetoolboxpage_id = get_option('websitetoolbox_pageid');
 				$page = get_page($websitetoolboxpage_id);
 				$page->post_content = "";
-				wp_update_post($page); 
+				wp_update_post($page);
 				update_post_meta( $post_ID, '_wtbredirect_active', '1' );
 			}
 			if($post_ID) {
 				echo "<div id='setting-error-settings_updated' class='updated settings-error'><p>Your settings have been saved.</p></div>";
-			}			
+			}
 		} else {
 			/* Show error meesage */
 			if(!$_POST['websitetoolbox_username']) {
 				$error_message = "Enter your forum username";
 			} elseif(!$_POST['websitetoolbox_api']) {
 				$error_message = "Enter your forum API key.";
-			} elseif(!$_POST['websitetoolbox_url']) {
-				$error_message = "Enter your forum address.";
-			} elseif($_POST['websitetoolbox_url'] && !validateForumURL($_POST['websitetoolbox_url'])) {
-				$error_message = "Enter valid URL including http or https.";
 			}
 			if($error_message) {
 				echo "<div id='setting-error-settings_updated' class='updated error'><p>".$error_message."</p></div>";
@@ -363,7 +348,6 @@ function websitetoolbox_admin_options() {
 	function ValidateForm(){
 		var websitetoolbox_username = document.getElementById('websitetoolbox_username').value;
 		var websitetoolbox_api = document.getElementById('websitetoolbox_api').value;
-		var websitetoolbox_url = document.getElementById('websitetoolbox_url').value;
 		if(websitetoolbox_username=="") {
 			alert("Please enter your forum username.");
 			document.getElementById('websitetoolbox_username').focus();
@@ -373,18 +357,6 @@ function websitetoolbox_admin_options() {
 			alert("Please enter your forum API key.");
 			document.getElementById('websitetoolbox_api').focus();
 			return false;
-		}
-		if(websitetoolbox_url=="") {
-			alert("Please enter your forum URL.");
-			document.getElementById('websitetoolbox_url').focus();
-			return false;
-		}
-		if(websitetoolbox_url!="") {
-			var pattern = /[A-Za-z0-9\.-]{3,}\.[A-Za-z]{3}/
-			if (!pattern.test(websitetoolbox_url)) {
-				alert("Please enter valid URL including http ot https");
-				return false;
-			} 
 		}
 	}
 	</script>
@@ -416,30 +388,30 @@ function websitetoolbox_activate() {
 	*  and otherwise publish an existing page
 	*/
 	$websitetoolboxpage_id = get_option('websitetoolbox_pageid');
-	if($websitetoolboxpage_id) {        
+	if($websitetoolboxpage_id) {
 		$page = get_page($websitetoolboxpage_id);
 		if($page) {
 			$page->post_status = 'publish';
 			wp_update_post($page);
 		} else {
 			// someone might have deleted the page, recreate it
-			create_websitetoolbox_page();    
+			create_websitetoolbox_page();
 		}
 	} else {
 		create_websitetoolbox_page();
 	}
 }
 
-#deactivate plugin 
+#deactivate plugin
 function websitetoolbox_deactivate() {
-	// hide the Website Toolbox forum page if it exists     
+	// hide the Website Toolbox forum page if it exists
 	$websitetoolboxpage_id = get_option('websitetoolbox_pageid');
 	if($websitetoolboxpage_id) {
 		$page = get_page($websitetoolboxpage_id);
 		if($page) {
 			$page->post_status = 'draft';
 			wp_update_post($page);
-		}        
+		}
 	}
 }
 
@@ -449,27 +421,26 @@ function wt_login_user($user_login) {
 	$username = urlencode($user_obj->user_login);
 	$password = $user_obj->user_pass;
 	$email 	  = $user_obj->user_email;
-	
+
 	$forum_api		= get_option("websitetoolbox_api");
 	$forum_url		= get_option("websitetoolbox_url");
-	
+
 	// create URL to get authentication token.
 	$URL = $forum_url."/register/setauthtoken";
 	// Append fileds email and password to create an account on the related forum if account not exist.
 	$fields = array('apikey' => $forum_api, 'user' => $username, 'email' => $email);
-	
+
 	// Send http or https request to get authentication token.
 	$response_array = wp_remote_post($URL, array('method' => 'POST', 'body' => $fields));
-	
-	//Check if http/https request could not return any error then filter XML from response 
+	//Check if http/https request could not return any error then filter XML from response
 	if(!is_wp_error( $response_array )) {
 		$response = trim(wp_remote_retrieve_body($response_array));
 		// Get authentication token from XML response.
 		$response_xml = preg_replace_callback('/<!\[CDATA\[(.*)\]\]>/', 'filter_xml', $response);
 		$response_xml = simplexml_load_string($response_xml);
-		
+
 		if(htmlentities($response_xml->error) != "" && $username != 'admin') {
-			#return an error message 
+			#return an error message
 			wp_die(htmlentities($response_xml->error));
 		} else {
 			if(htmlentities($response_xml->authtoken)) {
@@ -477,7 +448,7 @@ function wt_login_user($user_login) {
 			} else {
 				$resultdata = '';
 			}
-			#set cookie for 10 days if user logged-in with "remember me" option, to remain logged-in after closing browser. Otherwise set cookie 0 to logged-out after clossing browser. 
+			#set cookie for 10 days if user logged-in with "remember me" option, to remain logged-in after closing browser. Otherwise set cookie 0 to logged-out after clossing browser.
 			if(!empty($_POST['rememberme'])) {
 				setcookie('wt_login_remember', "checked", time() + 864000, COOKIEPATH, COOKIE_DOMAIN);
 			}
@@ -486,11 +457,11 @@ function wt_login_user($user_login) {
 			#Save authentication token into session variable.
 			save_authtoken($resultdata);
 			return true;
-		}	
-	}	
+		}
+	}
 }
 
-#delete user if username exist on the forum 
+#delete user if username exist on the forum
 function wp_delete_user_current( $id, $reassign = 'novalue' ) {
 	global $wpdb;
 	$id = (int) $id;
@@ -533,28 +504,24 @@ function wt_register_user($userid) {
 	$user_obj = new WP_User($userid);
 	$forum_api		= get_option("websitetoolbox_api");
 	$forum_url		= get_option("websitetoolbox_url");
-	
+
 	$login_id = $user_obj->ID;
 	$login 	  = $user_obj->user_login; # ie: JohnD223
-	// If get plain password then sent passord with request otherwise sent a blank password with SSO registration request. In WordPress admin panel password file name always pass1 so get $_POST['pass1'] as a plain password.
-	if($_POST['pass1']) {
-		$password = $_POST['pass1'];
-	} else {
-		$password = '';
-	}
+	// In latest version (4.3) WordPress site generate encrypted password every time account created by front end user or administrator, so set blank password every time for SSO registration..
+	$password = '';
 	$email 	  = $user_obj->user_email;
 	$display_name = $user_obj->display_name; # ie: John Doe
 	$first_name = $user_obj->first_name; # ie: John
 	$last_name = $user_obj->last_name; # ie: Doe
 	$fullname = $first_name." ".$last_name;
-	
+
 	// URL to create a new account on forum.
 	$URL = $forum_url."/register/create_account";
 	// Fields array.
 	$fields = array('apikey' => $forum_api, 'member' => $login, 'pw' => $password, 'email' => $email, 'name' => $fullname);
 	// Sent https/https request on related forum to create an account on the related forum.
 	$response_array = wp_remote_post($URL, array('method' => 'POST', 'body' => $fields));
-	
+
 	//Check if http/https request could not return any error then filter XML from response
 	if(!is_wp_error( $response_array )) {
 		$response = trim(wp_remote_retrieve_body($response_array));
@@ -563,7 +530,7 @@ function wt_register_user($userid) {
 		$response_xml = simplexml_load_string($response_xml);
 		$response = trim(htmlentities($response_xml->error));
 		$full_length = strlen($response);
-		
+
 		#Remove HTML tag with content from the message, return from forum if email of user already exist.
 		if(strpos($response,'&lt;')) {
 			$bad_string = strpos($response,'&lt;');
@@ -575,9 +542,9 @@ function wt_register_user($userid) {
 			return true;
 		} else {
 			wp_delete_user_current($login_id);
-			wp_die($response);	
+			wp_die($response);
 		}
-	}	
+	}
 }
 
 /* Show to admin after activate the SSO plugin while SSO will not be configured.*/
@@ -589,7 +556,7 @@ function wtb_warning()
 			<p>You will need to complete Website Toolbox <a href='options-general.php?page=websitetoolboxoptions'>Settings</a> in order for the plugin to work.</p>
 		</div>
 		";
-	}	
+	}
 }
 
 # for URl making
@@ -599,9 +566,9 @@ if (!function_exists('esc_attr')) {
 }
 
 #get all link of the menu
-if(get_option("websitetoolbox_redirect") == '') {	
-	function filter_page_links_wtb ($link, $post) {		
-		if(isset($post->ID)) {	
+if(get_option("websitetoolbox_redirect") == '') {
+	function filter_page_links_wtb ($link, $post) {
+		if(isset($post->ID)) {
 			$id = $post->ID;
 		} else {
 			$id = $post;
@@ -643,7 +610,7 @@ if(get_option("websitetoolbox_redirect") == '') {
 function get_main_array(){
 	global $wpdb;
 	$theArray = array();
-	
+
 	$theqsl = "SELECT * FROM $wpdb->postmeta a, $wpdb->posts b  WHERE a.`post_id`=b.`ID` AND b.`post_status`!='trash' AND (a.`meta_key` = '_wtbredirect_active' || a.`meta_key` = '_links_to' || a.`meta_key` = '_links_to_target' || a.`meta_key` = '_links_to_type') ORDER BY a.`post_id` ASC;";
 	$thetemp = $wpdb->get_results($theqsl);
 	if(count($thetemp)>0){
@@ -673,7 +640,7 @@ Param1: type (login/logout)
 Return: Nothing */
 function clean_authtoken($type) {
 	if($type=='login') {
-		unset($_SESSION['wtb_login_auth_token']);	
+		unset($_SESSION['wtb_login_auth_token']);
 	} else if($type=='logout')	{
 		setcookie("wt_logout_token", '', 0);
 	}
@@ -683,19 +650,28 @@ function clean_authtoken($type) {
 Parameter: None
 Return: None */
 function ssoLoginLogout() {
-	if (isset($_SESSION['wtb_login_auth_token'])) {
-		$login_auth_url = get_option(websitetoolbox_url)."/register/dologin?authtoken=".$_SESSION['wtb_login_auth_token'];
-		if($_COOKIE['wt_login_remember']) {
+
+	// If user logged-out from the Forum then call wp_logout function to logged-out from WordPress site as well as forum.
+	if(isset($_GET['action']) && $_GET['action']=='ssoLogout' && is_user_logged_in()) {
+		wp_logout();
+		exit;
+	}
+
+	// If user logged-out from WordPress Site
+	if (isset($_SESSION['wtb_login_auth_token'])) { 
+		$login_auth_url = get_option('websitetoolbox_url')."/register/dologin?authtoken=".$_SESSION['wtb_login_auth_token'];
+		if(isset($_COOKIE['wt_login_remember'])) {
 			$login_auth_url = $login_auth_url."&remember=".$_COOKIE['wt_login_remember'];
 		}
+
 		/* Print image tag on the login landing success page to sent login request on the related forum */
 		echo '<img src="'.$login_auth_url.'" border="0" width="0" height="0" alt="">';
 		/* remove authentication token from session variable so that above image tag not write again and again */
 		clean_authtoken('login');
 		return false;
 	}
-	if(!is_user_logged_in() && $_COOKIE['wt_logout_token']) {
-		$logout_auth_url = get_option(websitetoolbox_url)."/register/logout?authtoken=".$_COOKIE['wt_logout_token'];
+	if(!is_user_logged_in() && isset($_COOKIE['wt_logout_token'])) {
+		$logout_auth_url = get_option('websitetoolbox_url')."/register/logout?authtoken=".$_COOKIE['wt_logout_token'];
 		/* Print image tag on the header section sent logout request on the related forum */
 		echo '<img src="'.$logout_auth_url.'" border="0" width="0" height="0" alt="">';
 		clean_authtoken('logout');
@@ -703,11 +679,11 @@ function ssoLoginLogout() {
 	}
 }
 
-#Parse XML response 
+#Parse XML response
 function filter_xml($matches) {
 	return trim(htmlspecialchars($matches[1]));
-} 
-	
+}
+
 /* Define Hook to get user information */
 add_action('admin_menu', 'websitetoolbox_add_admin_menu');
 add_action('admin_init', 'websitetoolbox_admin_init');
