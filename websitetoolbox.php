@@ -329,7 +329,7 @@ function websitetoolbox_admin_options() {
 				update_post_meta( $post_ID, '_wtbredirect_active', '1' );
 			}
 			if($post_ID) {
-        echo '<div id="setting-error-settings_updated" class="updated settings-error"><p>';
+        echo '<div id="setting-error-settings_updated" class="updated notice"><p>';
         if ($firstSetup) {
           echo 'Congrats! A link to your forum has been added to your website\'s navigation menu and single sign on has been integrated.';
         } else {
