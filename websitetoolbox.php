@@ -191,7 +191,7 @@ function websitetoolbox_embed_option($args) {
 	} else {
 		$checked = get_option('websitetoolbox_redirect');
 	}
-	
+
 	$html = '<input type="checkbox" name="websitetoolbox_redirect" id="websitetoolbox_redirect" value="1" ' . checked(1, $checked, false) . '/>';
 
 	$html .= '<label for="websitetoolbox_redirect"> Enable this option to have your forum load within an iframe on your website. <br>Disable this option to have your forum load in a full-sized window. You can use the Layout section in your Website Toolbox account to <a href="http://www.websitetoolbox.com/support/148" target="_blank">customize your forum layout to match your website</a> or <a href="http://www.websitetoolbox.com/contact?subject=Customize+Forum+Layout" target="_blank">contact Website Toolbox support to customize it for you</a>.</label>';
@@ -256,6 +256,7 @@ function websitetoolbox_admin_options() {
 			} else {
 				#insert Website Toolbox forum API name in option table
 				add_option('websitetoolbox_api', $_POST['websitetoolbox_api']);
+        $firstSetup = 1;
 			}
 			if(get_option("websitetoolbox_url")) {
 				#update Website Toolbox forum URL in option table if exist
@@ -328,7 +329,13 @@ function websitetoolbox_admin_options() {
 				update_post_meta( $post_ID, '_wtbredirect_active', '1' );
 			}
 			if($post_ID) {
-				echo "<div id='setting-error-settings_updated' class='updated settings-error'><p>Your settings have been saved.</p></div>";
+        echo '<div id="setting-error-settings_updated" class="updated settings-error"><p>';
+        if ($firstSetup) {
+          echo 'Congrats! A link to your forum has been added to your website\'s navigation menu and single sign on has been integrated.';
+        } else {
+          echo 'Your settings have been saved.';
+        }
+        echo '</p></div>';
 			}
 		} else {
 			/* Show error meesage */
@@ -658,7 +665,7 @@ function ssoLoginLogout() {
 	}
 
 	// If user logged-out from WordPress Site
-	if (isset($_SESSION['wtb_login_auth_token'])) { 
+	if (isset($_SESSION['wtb_login_auth_token'])) {
 		$login_auth_url = get_option('websitetoolbox_url')."/register/dologin?authtoken=".$_SESSION['wtb_login_auth_token'];
 		if(isset($_COOKIE['wt_login_remember'])) {
 			$login_auth_url = $login_auth_url."&remember=".$_COOKIE['wt_login_remember'];
