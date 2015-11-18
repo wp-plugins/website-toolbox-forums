@@ -6,7 +6,7 @@
 /*
 Plugin Name: Website Toolbox Forum
 Description: Integrates single sign on and embeds your forum into your WordPress website.
-Version: 1.2.4
+Version: 1.3.0
 Author: Team Website Toolbox | <a href="options-general.php?page=websitetoolboxoptions">Settings</a>
 Purpose: Integrates your forum with your WordPress website
 */
@@ -207,11 +207,15 @@ function websitetoolbox_admin_options() {
 			// create URL to check authentication token.
 			$URL = "http://www.websitetoolbox.com/tool/members/mb/settings";
 
-			// WordPress site login, logout and registration URL.
-			$websitetoolbox_login_url = wp_login_url();
-			$websitetoolbox_logout_url = add_query_arg( array('action' => 'logout'), wp_login_url() );
-			$websitetoolbox_register_url = wp_registration_url();
-
+			$websitetoolbox_login_url;
+			$websitetoolbox_logout_url;
+			$websitetoolbox_register_url;
+			// If registration option is enable from WordPress site then sent login, logout, registration URL into HTTP request.
+			if(get_option('users_can_register')) {
+				$websitetoolbox_login_url = wp_login_url();
+				$websitetoolbox_logout_url = add_query_arg( array('action' => 'logout'), wp_login_url() );
+				$websitetoolbox_register_url = wp_registration_url();
+			}
 			// Get embed page URL
 			if($_POST['websitetoolbox_redirect']) {
 				$wtb_pageid = get_option('websitetoolbox_pageid');
@@ -425,7 +429,7 @@ function websitetoolbox_deactivate() {
 #logged-in a new user on the related forum
 function wt_login_user($user_login) {
 	$user_obj = new WP_User(0,$user_login);
-	$username = urlencode($user_obj->user_login);
+	$username = $user_obj->user_login;
 	$password = $user_obj->user_pass;
 	$email 	  = $user_obj->user_email;
 
@@ -455,14 +459,27 @@ function wt_login_user($user_login) {
 			} else {
 				$resultdata = '';
 			}
+			// If chat Room enable then get chat access token.
+			if(htmlentities($response_xml->access_token)) {
+				$access_token = htmlentities($response_xml->access_token);
+				$chatroom_url = htmlentities($response_xml->chatroom_url);
+			} else {
+				$access_token = '';
+				$chatroom_url = '';
+			}
 			#set cookie for 10 days if user logged-in with "remember me" option, to remain logged-in after closing browser. Otherwise set cookie 0 to logged-out after clossing browser.
 			if(!empty($_POST['rememberme'])) {
 				setcookie('wt_login_remember', "checked", time() + 864000, COOKIEPATH, COOKIE_DOMAIN);
 			}
 			// Save authentication token into cookie for one day to use into SSO logout.
 			setcookie('wt_logout_token', $resultdata, time() + 86400, COOKIEPATH, COOKIE_DOMAIN);
+			// Save access token into cookie for one day to use into SSO logout from Chat Room.
+			if($access_token) {
+				setcookie('wtchat_logout_token', $access_token, time() + 86400, COOKIEPATH, COOKIE_DOMAIN);
+				setcookie('wtchat_url', $chatroom_url, time() + 86400, COOKIEPATH, COOKIE_DOMAIN);
+			}
 			#Save authentication token into session variable.
-			save_authtoken($resultdata);
+			save_authtoken($resultdata,$access_token,$chatroom_url);
 			return true;
 		}
 	}
@@ -638,8 +655,13 @@ function get_main_array(){
 /* Purpose: This function is used to set authentication token into session variable if user logged-in.
 Param: authentication token
 Return: Nothing */
-function save_authtoken($authtoken) {
+function save_authtoken($authtoken,$access_token,$chatroom_url) {
 	$_SESSION['wtb_login_auth_token'] = $authtoken;
+	// Save access token into a session to login user on the caht room
+	if($access_token) {
+		$_SESSION['wtbchat_login_auth_token'] = $access_token;
+		$_SESSION['wtbchat_url'] = $chatroom_url;
+	}
 }
 
 /* Purpose: This function is used to unset session variable if user logged-in/logged-out.
@@ -648,8 +670,12 @@ Return: Nothing */
 function clean_authtoken($type) {
 	if($type=='login') {
 		unset($_SESSION['wtb_login_auth_token']);
+		unset($_SESSION['wtbchat_login_auth_token']);
+		unset($_SESSION['wtbchat_url']);
 	} else if($type=='logout')	{
 		setcookie("wt_logout_token", '', 0);
+		setcookie("wtchat_logout_token", '', 0);
+		setcookie("wtchat_url", '', 0);
 	}
 }
 
@@ -673,7 +699,14 @@ function ssoLoginLogout() {
 
 		/* Print image tag on the login landing success page to sent login request on the related forum */
 		echo '<img src="'.$login_auth_url.'" border="0" width="0" height="0" alt="">';
-		/* remove authentication token from session variable so that above image tag not write again and again */
+		/* Print image tag on the login landing success page to sent login request on the related Chat Room */
+		if(isset($_SESSION['wtbchat_login_auth_token'])) {
+			$chatlogin_auth_url = $_SESSION['wtbchat_url']."/sso/token/login?access_token=".$_SESSION['wtbchat_login_auth_token'];
+			if(isset($_COOKIE['wt_login_remember'])) {
+				$chatlogin_auth_url = $chatlogin_auth_url."&rememberMe=1";
+			}
+			echo '<img src="'.$chatlogin_auth_url.'" border="0" width="0" height="0" alt="">';
+		}
 		clean_authtoken('login');
 		return false;
 	}
@@ -681,6 +714,12 @@ function ssoLoginLogout() {
 		$logout_auth_url = get_option('websitetoolbox_url')."/register/logout?authtoken=".$_COOKIE['wt_logout_token'];
 		/* Print image tag on the header section sent logout request on the related forum */
 		echo '<img src="'.$logout_auth_url.'" border="0" width="0" height="0" alt="">';
+		/* If user logged-in on the chat room then logged-out from the chat room */
+		if(isset($_COOKIE['wtchat_logout_token'])) {
+			$chatlogout_auth_url = $_COOKIE['wtchat_url']."/sso/token/logout?access_token=".$_COOKIE['wtchat_logout_token'];
+			echo '<img src="'.$chatlogout_auth_url.'" border="0" width="0" height="0" alt="">';
+		}
+
 		clean_authtoken('logout');
 		return false;
 	}
@@ -689,6 +728,99 @@ function ssoLoginLogout() {
 #Parse XML response
 function filter_xml($matches) {
 	return trim(htmlspecialchars($matches[1]));
+}
+
+/* Purpose: Function is used to append authtoken at the end of URL if user logged-in on wordpress site and then clicks on the forum link.
+Parameter: Manual link and post id.
+Return: Manual links */
+function changeForumLink($items, $post){
+	// Append authtoken in the forum link if user logged-in on WordPress site and forum open in window independently.
+	if(is_user_logged_in()) {
+		if($post == get_option('websitetoolbox_pageid') && get_option("websitetoolbox_redirect") == '') {
+			$authtoken = $_COOKIE['wt_logout_token'];
+			if($_COOKIE['wtchat_logout_token']) {
+				$authtoken .= "-".$_COOKIE['wtchat_logout_token'];
+			}
+			if(isset($_COOKIE['wt_login_remember'])) {
+				$remember = $_COOKIE['wt_login_remember'];
+			}
+			$add_token = array('authtoken' => $authtoken, 'remember' => $remember);
+			$items = add_query_arg( $add_token, $items );
+		}
+	}
+	return $items;
+}
+add_filter('page_link', 'changeForumLink', 20, 2);
+
+/* Purpose: Function is used to append authentication token into the forum URL.
+Parameter: page content.
+Return: replace page content */
+function updatePageContent($content) {
+	// Append authtoken in the embed code if user logged-in on WordPress site and forum open in iframe.
+	if($GLOBALS['post']->ID == get_option('websitetoolbox_pageid') && get_option("websitetoolbox_redirect") != '' && is_user_logged_in()) {
+		if(preg_match('#^https?://#', get_option('websitetoolbox_url'))) {
+			$wtb_url = get_option('websitetoolbox_url');
+		} else {
+			$wtb_url = "http://".get_option('websitetoolbox_url');
+		}
+		$auth_token = "?authtoken=".$_COOKIE['wt_logout_token'];
+		if($_COOKIE['wtchat_logout_token']) {
+			$auth_token .= "-".$_COOKIE['wtchat_logout_token'];
+		}
+		if(isset($_COOKIE['wt_login_remember'])) {
+			$auth_token .= "&remember=".$_COOKIE['wt_login_remember'];
+		}
+		$content = '<script type="text/javascript" id="embedded_forum" src="'.$wtb_url.'/js/mb/embed.js'.$auth_token.'"></script><noscript><a href="'.$wtb_url.'">Forum</a></noscript>';
+	}
+    return $content;
+}
+add_filter( 'the_content', 'updatePageContent', 20, 2 );
+
+
+
+/* Purpose: If a user deleted from WordPress site then delete from Forum.
+Parameter: None
+Return: None */
+function deleteForumUser($args) {
+	global $wpdb;
+
+	#get All the user id's deleted from wordpress site.
+	$userids = implode(",", $_POST['users']);
+
+	#Get username from users table on the basis of userids.
+	$user_names = $wpdb->get_results( "
+		SELECT user_login
+		FROM $wpdb->users
+		WHERE ID IN ($userids)" );
+	$unames = array();
+	foreach ( $user_names as $usernames ) {
+		$unames[] = $usernames->user_login;
+	}
+	#create a comma(,) separated string to sent user delete request on the Forum.
+	if ( $unames ) {
+		$usernames = implode(",", $unames);
+	}
+
+
+	$forum_api		= get_option("websitetoolbox_api");
+	$forum_url		= get_option("websitetoolbox_url");
+
+	// create URL to to delete users from related Forum.
+	$URL = $forum_url."/register";
+
+	$fields = array('apikey' => $forum_api, 'massaction' => 'decline_mem', 'usernames' => $usernames);
+
+	// Send http or https request to get authentication token.
+	$response_array = wp_remote_post($URL, array('method' => 'POST', 'body' => $fields));
+
+	if(!is_wp_error( $response_array )) {
+		$response = trim(wp_remote_retrieve_body($response_array));
+		// Decode json string
+		$response = json_decode($response);
+		if($response->{'success'}) {
+			return true;
+		}
+	}
 }
 
 /* Define Hook to get user information */
@@ -707,6 +839,8 @@ add_action('wp_footer','ssoLoginLogout');
 add_action('admin_footer','ssoLoginLogout');
 /* print IMG tags to the admin login page if user redirected to login page after logged-out. */
 add_action('login_footer', 'ssoLoginLogout');
+/* Call this hook if single or multiple user delete from the WordPress site. */
+add_action('delete_user', 'deleteForumUser');
 
 register_activation_hook( __FILE__, 'websitetoolbox_activate' );
 register_deactivation_hook( __FILE__, 'websitetoolbox_deactivate' );
